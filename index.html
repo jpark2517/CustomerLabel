@@ -1,1 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Staged Order Label Printer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    :root {
+      --bg: #111827;
+      --card: #1f2933;
+      --accent: #3b82f6;
+      --accent-soft: #1d4ed8;
+      --text: #f9fafb;
+      --muted: #9ca3af;
+    }
+
+    body {
+      margin: 0;
+      padding: 16px;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #111827 0%, #020617 55%, #000 100%);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 900px;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      margin: 0 0 4px;
+    }
+
+    h2 {
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin: 0 0 16px;
+    }
+
+    .card {
+      background: radial-gradient(circle at top left, #111827, #020617);
+      border-radius: 18px;
+      padding: 16px 18px 20px;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      box-shadow: 0 12px 40px rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(20px);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.2fr);
+      gap: 16px;
+    }
+
+    @media (max-width: 800px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 10px;
+    }
+
+    label {
+      font-size: 0.8rem;
+      margin-bottom: 4px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    input {
+      background: #020617;
+      border-radius: 10px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      padding: 8px 10px;
+      font-size: 0.9rem;
+      color: var(--text);
+      outline: none;
+    }
+
+    input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.4);
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .row .field-group {
+      flex: 1;
+    }
+
+    .buttons {
+      margin-top: 8px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 8px 16px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-soft));
+      color: white;
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.45);
+    }
+
+    button.secondary {
+      background: transparent;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      color: var(--muted);
+      box-shadow: none;
+    }
+
+    button span.icon {
+      font-size: 1.1rem;
+    }
+
+    /* LABEL PREVIEW AREA */
+    .label-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* This box visually approximates a 4"x2" label */
+    .label {
+      width: 600px;
+      height: 400px;
+      background: #f9fafb;
+      color: #111827;
+      border-radius: 10px;
+      box-shadow: inset 0 0 0 1px #d1d5db;
+      padding: 10px 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .label-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #6b7280;
+    }
+
+    .label-main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 4px 6px;
+    }
+
+    .label-main .customer-name {
+      font-size: 1.8rem;
+      font-weight: 800;
+      line-height: 1.1;
+      word-break: break-word;
+    }
+
+    .label-footer {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.7rem;
+      color: #374151;
+    }
+
+    .label-footer span {
+      font-weight: 600;
+    }
+
+    /* PRINT STYLES */
+    @media print {
+      body {
+        background: #ffffff;
+        margin: 0;
+        padding: 0;
+      }
+      .app {
+        margin: 0;
+        max-width: none;
+      }
+      .card {
+        box-shadow: none;
+        border-radius: 0;
+        border: none;
+        padding: 0;
+      }
+      .layout {
+        display: block;
+      }
+      .layout > *:not(.label-wrapper) {
+        display: none;
+      }
+      .label-wrapper {
+        min-height: 0;
+      }
+      .label {
+        /* let printer/page size control actual physical label size */
+        width: 100%;
+        height: 100%;
+        box-shadow: none;
+        margin: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <h1>Staged Order Labels</h1>
+    <h2>Zebra GX420 • Customer Name Sticker</h2>
+
+    <div class="card">
+      <div class="layout">
+        <!-- LEFT: FORM -->
+        <div>
+          <div class="field-group">
+            <label for="customerName">Customer Name</label>
+            <input id="customerName" placeholder="Mr. Supply / Home Depot / etc." />
+          </div>
+
+          <div class="row">
+            <div class="field-group">
+              <label for="orderNumber">Order #</label>
+              <input id="orderNumber" placeholder="SO-12345" />
+            </div>
+            <div class="field-group">
+              <label for="poNumber">PO # (optional)</label>
+              <input id="poNumber" placeholder="PO-98765" />
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="field-group">
+              <label for="stagingLocation">Staging Location</label>
+              <input id="stagingLocation" placeholder="Dock 2 / Aisle F / etc." />
+            </div>
+            <div class="field-group">
+              <label for="shipDate">Ship Date</label>
+              <input id="shipDate" type="date" />
+            </div>
+          </div>
+
+          <div class="buttons">
+            <button type="button" onclick="printLabel()">
+              <span class="icon">🖨️</span>
+              <span>Print Label</span>
+            </button>
+            <button type="button" class="secondary" onclick="clearFields()">
+              <span class="icon">♻️</span>
+              <span>Clear</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- RIGHT: LABEL PREVIEW -->
+        <div class="label-wrapper">
+          <div class="label" id="labelPreview">
+            <div class="label-header">
+              <div>APOLLON WIRE &amp; CABLE</div>
+              <div>STAGED ORDER</div>
+            </div>
+
+            <div class="label-main">
+              <div class="customer-name" id="previewCustomerName">
+                CUSTOMER NAME
+              </div>
+            </div>
+
+            <div class="label-footer">
+              <div>
+                ORDER: <span id="previewOrderNumber">—</span><br />
+                PO: <span id="previewPoNumber">—</span>
+              </div>
+              <div style="text-align:right">
+                STAGE: <span id="previewStagingLocation">—</span><br />
+                SHIP: <span id="previewShipDate">—</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div> <!-- layout -->
+    </div> <!-- card -->
+  </div> <!-- app -->
+
+  <script>
+    const customerNameInput = document.getElementById('customerName');
+    const orderNumberInput = document.getElementById('orderNumber');
+    const poNumberInput = document.getElementById('poNumber');
+    const stagingLocationInput = document.getElementById('stagingLocation');
+    const shipDateInput = document.getElementById('shipDate');
+
+    const previewCustomerName = document.getElementById('previewCustomerName');
+    const previewOrderNumber = document.getElementById('previewOrderNumber');
+    const previewPoNumber = document.getElementById('previewPoNumber');
+    const previewStagingLocation = document.getElementById('previewStagingLocation');
+    const previewShipDate = document.getElementById('previewShipDate');
+
+    function updatePreview() {
+      previewCustomerName.textContent =
+        customerNameInput.value.trim() || 'CUSTOMER NAME';
+
+      previewOrderNumber.textContent =
+        orderNumberInput.value.trim() || '—';
+
+      previewPoNumber.textContent =
+        poNumberInput.value.trim() || '—';
+
+      previewStagingLocation.textContent =
+        stagingLocationInput.value.trim() || '—';
+
+      if (shipDateInput.value) {
+        const d = new Date(shipDateInput.value + 'T00:00');
+        const month = (d.getMonth() + 1).toString().padStart(2, '0');
+        const day = d.getDate().toString().padStart(2, '0');
+        const year = d.getFullYear();
+        previewShipDate.textContent = `${month}/${day}/${year}`;
+      } else {
+        previewShipDate.textContent = '—';
+      }
+    }
+
+    [customerNameInput, orderNumberInput, poNumberInput, stagingLocationInput, shipDateInput]
+      .forEach(el => el.addEventListener('input', updatePreview));
+
+    function printLabel() {
+      updatePreview();
+      window.print();
+    }
+
+    function clearFields() {
+      customerNameInput.value = '';
+      orderNumberInput.value = '';
+      poNumberInput.value = '';
+      stagingLocationInput.value = '';
+      shipDateInput.value = '';
+      updatePreview();
+      customerNameInput.focus();
+    }
+
+    // Set today as default ship date
+    window.addEventListener('DOMContentLoaded', () => {
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const dd = String(today.getDate()).padStart(2, '0');
+      shipDateInput.value = `${yyyy}-${mm}-${dd}`;
+      updatePreview();
+    });
+  </script>
+</body>
+</html>
 
