@@ -107,6 +107,7 @@
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
+      align-items: center;
     }
 
     button {
@@ -131,8 +132,23 @@
       box-shadow: none;
     }
 
+    button.chip {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      box-shadow: none;
+      font-size: 0.8rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+    }
+
     button span.icon {
       font-size: 1.1rem;
+    }
+
+    .helper-text {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 2px;
     }
 
     /* LABEL PREVIEW AREA */
@@ -144,8 +160,8 @@
 
     /* This box visually approximates a 4"x2" label */
     .label {
-      width: 600px;
-      height: 400px;
+      width: 400px;
+      height: 200px;
       background: #f9fafb;
       color: #111827;
       border-radius: 10px;
@@ -221,7 +237,6 @@
         min-height: 0;
       }
       .label {
-        /* let printer/page size control actual physical label size */
         width: 100%;
         height: 100%;
         box-shadow: none;
@@ -242,6 +257,15 @@
           <div class="field-group">
             <label for="customerName">Customer Name</label>
             <input id="customerName" placeholder="Mr. Supply / Home Depot / etc." />
+            <div class="helper-text">Click a preset or type manually.</div>
+          </div>
+
+          <!-- PRESET CUSTOMER BUTTONS -->
+          <div class="field-group">
+            <label>Presets</label>
+            <div class="buttons" id="presetButtons">
+              <!-- Buttons are injected by JS so you can edit the list there -->
+            </div>
           </div>
 
           <div class="row">
@@ -263,6 +287,22 @@
             <div class="field-group">
               <label for="shipDate">Ship Date</label>
               <input id="shipDate" type="date" />
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="field-group">
+              <label for="copies">Copies</label>
+              <input
+                id="copies"
+                type="number"
+                min="1"
+                max="50"
+                value="1"
+              />
+              <div class="helper-text">
+                This prints on the label. Set the same number in the printer dialog.
+              </div>
             </div>
           </div>
 
@@ -299,7 +339,8 @@
               </div>
               <div style="text-align:right">
                 STAGE: <span id="previewStagingLocation">—</span><br />
-                SHIP: <span id="previewShipDate">—</span>
+                SHIP: <span id="previewShipDate">—</span><br />
+                COPIES: <span id="previewCopies">1</span>
               </div>
             </div>
           </div>
@@ -314,12 +355,41 @@
     const poNumberInput = document.getElementById('poNumber');
     const stagingLocationInput = document.getElementById('stagingLocation');
     const shipDateInput = document.getElementById('shipDate');
+    const copiesInput = document.getElementById('copies');
 
     const previewCustomerName = document.getElementById('previewCustomerName');
     const previewOrderNumber = document.getElementById('previewOrderNumber');
     const previewPoNumber = document.getElementById('previewPoNumber');
     const previewStagingLocation = document.getElementById('previewStagingLocation');
     const previewShipDate = document.getElementById('previewShipDate');
+    const previewCopies = document.getElementById('previewCopies');
+
+    // 🔹 EDIT THIS LIST FOR YOUR REAL CUSTOMERS
+    const customerPresets = [
+      'Mr. Supply',
+      'Priority Wire & Cable',
+      'City Electric Supply',
+      'Graybar',
+      'Home Depot',
+      'Lowe’s'
+    ];
+
+    function buildPresetButtons() {
+      const container = document.getElementById('presetButtons');
+      container.innerHTML = '';
+      customerPresets.forEach(name => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'chip';
+        btn.textContent = name;
+        btn.addEventListener('click', () => {
+          customerNameInput.value = name;
+          updatePreview();
+          customerNameInput.focus();
+        });
+        container.appendChild(btn);
+      });
+    }
 
     function updatePreview() {
       previewCustomerName.textContent =
@@ -343,14 +413,27 @@
       } else {
         previewShipDate.textContent = '—';
       }
+
+      let copiesVal = parseInt(copiesInput.value, 10);
+      if (isNaN(copiesVal) || copiesVal < 1) copiesVal = 1;
+      if (copiesVal > 50) copiesVal = 50;
+      copiesInput.value = copiesVal;
+      previewCopies.textContent = copiesVal.toString();
     }
 
-    [customerNameInput, orderNumberInput, poNumberInput, stagingLocationInput, shipDateInput]
-      .forEach(el => el.addEventListener('input', updatePreview));
+    [
+      customerNameInput,
+      orderNumberInput,
+      poNumberInput,
+      stagingLocationInput,
+      shipDateInput,
+      copiesInput
+    ].forEach(el => el.addEventListener('input', updatePreview));
 
     function printLabel() {
       updatePreview();
       window.print();
+      // Remember: select the number of copies in the printer dialog.
     }
 
     function clearFields() {
@@ -358,21 +441,26 @@
       orderNumberInput.value = '';
       poNumberInput.value = '';
       stagingLocationInput.value = '';
-      shipDateInput.value = '';
-      updatePreview();
-      customerNameInput.focus();
-    }
-
-    // Set today as default ship date
-    window.addEventListener('DOMContentLoaded', () => {
+      copiesInput.value = '1';
       const today = new Date();
       const yyyy = today.getFullYear();
       const mm = String(today.getMonth() + 1).padStart(2, '0');
       const dd = String(today.getDate()).padStart(2, '0');
       shipDateInput.value = `${yyyy}-${mm}-${dd}`;
       updatePreview();
+      customerNameInput.focus();
+    }
+
+    // Set today as default ship date + build presets
+    window.addEventListener('DOMContentLoaded', () => {
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const dd = String(today.getDate()).padStart(2, '0');
+      shipDateInput.value = `${yyyy}-${mm}-${dd}`;
+      buildPresetButtons();
+      updatePreview();
     });
   </script>
 </body>
 </html>
-
