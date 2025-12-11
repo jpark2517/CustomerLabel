@@ -614,10 +614,32 @@
   }
 
   // ====== PREVIEW ======
+    // Auto-resize customer name to fill the label
+function autoResizeCustomerName() {
+  const el = previewCustomerName;
+  const parent = el.parentElement; // the .label-main div
+
+  let size = 72;      // max starting size
+  const minSize = 14; // smallest allowed
+
+  el.style.fontSize = size + 'px';
+
+  // shrink until it fits in width & height
+  while (
+    (el.scrollWidth > parent.clientWidth ||
+      el.scrollHeight > parent.clientHeight) &&
+    size > minSize
+  ) {
+    size -= 2;
+    el.style.fontSize = size + 'px';
+  }
+}
+
   function updatePreview() {
     previewCustomerName.textContent =
       customerNameInput.value.trim() || 'CUSTOMER NAME';
-
+  autoResizeCustomerName();
+    
     const orderVal = orderNumberInput.value.trim();
     if (orderVal) {
       previewOrderNumber.textContent = orderVal;
