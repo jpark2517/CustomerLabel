@@ -253,6 +253,17 @@
       font-size: 0.7rem;
       color: #374151;
     }
+    /* Prevent long ORDER/PALLET text from overflowing */
+    .label-footer-left {
+      max-width: 260px;          /* keeps the left block contained */
+    }
+
+    .label-footer-left-line {
+      white-space: nowrap;        /* stay on one line */
+      overflow: hidden;           /* hide overflow */
+      text-overflow: ellipsis;    /* add "..." when too long */
+      font-size: 0.65rem;         /* slightly smaller so it fits better */
+    }
 
     .label-footer span {
       font-weight: 600;
@@ -417,16 +428,17 @@
               </div>
 
               <div class="label-footer">
-                <div>
-                  <div id="orderLine" style="display:none;">
+                <div class="label-footer-left">
+                  <div id="orderLine" class="label-footer-left-line" style="display:none;">
                     ORDER: <span id="previewOrderNumber"></span>
                   </div>
-                  <div id="palletLine" style="display:none;">
+                  <div id="palletLine" class="label-footer-left-line" style="display:none;">
                     PALLET: <span id="previewPalletQty"></span>
                   </div>
                 </div>
-                <div style="text-align:right">
-                  SHIP: <span id="previewShipDate">—</span>
+
+                <div style="text-align:right;">
+                  SHIP: <span id="previewShipDate"></span>
                 </div>
               </div>
             </div>
@@ -656,7 +668,8 @@
 
       const orderVal = orderNumberInput.value.trim();
       if (orderVal) {
-        previewOrderNumber.textContent = orderVal;
+        // limit to 20 characters so it can't blow up the footer
+        previewOrderNumber.textContent = orderVal.slice(0, 20);
         orderLine.style.display = 'block';
       } else {
         orderLine.style.display = 'none';
@@ -664,10 +677,11 @@
 
       const palletVal = palletQtyInput.value.trim();
       if (palletVal) {
-        previewPalletQty.textContent = palletVal;
-        palletLine.style.display = 'block';
+       // same idea for pallet text
+       previewPalletQty.textContent = palletVal.slice(0, 20);
+       palletLine.style.display = 'block';
       } else {
-        palletLine.style.display = 'none';
+       palletLine.style.display = 'none';
       }
 
       if (shipDateInput.value) {
