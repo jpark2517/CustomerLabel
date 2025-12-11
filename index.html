@@ -185,64 +185,73 @@
      ============================================================ */
   @media print {
 
-    @page {
-      size: 6in 4in;   /* 🔥 The correct Zebra label size */
-      margin: 0;
-    }
-
-    body {
-      background: #ffffff;
-      margin: 0;
-      padding: 0;
-    }
-
-    /* Hide everything except the label */
-    .layout > div:first-child,
-    .admin-panel,
-    h1, h2 {
-      display: none !important;
-    }
-
-    .layout {
-      display: block;
-    }
-
-    .label-wrapper {
-      margin: 0;
-    }
-
-    /* Correct internal spacing */
-    .label {
-      width: 100%;
-      height: 100%;
-      padding: 30px 40px;   /* 🔥 Adds breathing room on all edges */
-      box-shadow: none;
-      margin: 0;
-
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;  /* No more squeezing */
-    }
-
-    .label-header {
-      margin-top: 0;
-      margin-bottom: 32px; /* more space above name */
-    }
-
-    .label-main {
-      margin-bottom: 32px; /* space between name + footer */
-    }
-
-    .label-footer {
-      margin-top: auto;     /* pushes it to bottom */
-      padding-bottom: 10px; /* buffer from true bottom */
-    }
-
-    .label-footer div:last-child {
-      text-align: right;
-      padding-right: 12px;
-    }
+  @page {
+    size: 6in 4in;
+    margin: 0;
   }
+
+  body {
+    background: #ffffff;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Hide everything except the label */
+  .layout > div:first-child,
+  .admin-panel,
+  h1, h2 {
+    display: none !important;
+  }
+
+  .layout {
+    display: block;
+  }
+
+  .label-wrapper {
+    margin: 0;
+    padding: 0;
+  }
+
+  /* 🔥 MAKE THE LABEL FILL THE ENTIRE 6×4 PAGE */
+  .label {
+    width: 100vw;      /* full width of print page */
+    height: 100vh;     /* full height of print page */
+
+    max-width: 100%;
+    max-height: 100%;
+
+    margin: 0;
+    padding: 40px 50px;   /* adjust spacing */
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+
+  /* Upper spacing */
+  .label-header {
+    margin-top: 0;
+    margin-bottom: 40px;
+  }
+
+  /* Space between customer name + footer */
+  .label-main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 40px;
+  }
+
+  /* Push footer to bottom */
+  .label-footer {
+    margin-top: auto;
+    padding-bottom: 20px;
+  }
+
+  .label-footer div:last-child {
+    text-align: right;
+    padding-right: 10px;
+  }
+}
 </style>
 
 </head>
