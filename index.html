@@ -6,316 +6,245 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
-    :root {
-      --bg: #111827;
-      --card: #1f2933;
-      --accent: #3b82f6;
-      --accent-soft: #1d4ed8;
-      --text: #f9fafb;
-      --muted: #9ca3af;
-    }
-
-    body {
-      margin: 0;
-      padding: 16px;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: radial-gradient(circle at top, #111827 0%, #020617 55%, #000 100%);
-      color: var(--text);
-      display: flex;
-      justify-content: center;
-    }
-
-    .app {
-      width: 100%;
-      max-width: 900px;
-    }
-
-    h1 {
-      font-size: 1.6rem;
-      margin: 0 0 4px;
-    }
-
-    h2 {
-      font-size: 0.95rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--muted);
-      margin: 0 0 16px;
-    }
-
-    .card {
-      background: radial-gradient(circle at top left, #111827, #020617);
-      border-radius: 18px;
-      padding: 16px 18px 20px;
-      border: 1px solid rgba(148, 163, 184, 0.3);
-      box-shadow: 0 12px 40px rgba(15, 23, 42, 0.7);
-      backdrop-filter: blur(20px);
-    }
-
-    .layout {
-      display: grid;
-      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.2fr);
-      gap: 16px;
-    }
-
-    @media (max-width: 800px) {
-      .layout {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .field-group {
-      display: flex;
-      flex-direction: column;
-      margin-bottom: 10px;
-    }
-
-    label {
-      font-size: 0.8rem;
-      margin-bottom: 4px;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-    }
-
-    input, select {
-      background: #020617;
-      border-radius: 10px;
-      border: 1px solid rgba(148, 163, 184, 0.5);
-      padding: 8px 10px;
-      font-size: 0.9rem;
-      color: var(--text);
-      outline: none;
-    }
-
-    input:focus, select:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.4);
-    }
-
-    .row {
-      display: flex;
-      gap: 10px;
-    }
-
-    .row .field-group {
-      flex: 1;
-    }
-
-    .buttons {
-      margin-top: 8px;
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-
-    button {
-      border: none;
-      border-radius: 999px;
-      padding: 8px 16px;
-      font-size: 0.9rem;
-      font-weight: 500;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: linear-gradient(135deg, var(--accent), var(--accent-soft));
-      color: white;
-      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.45);
-    }
-
-    button.secondary {
-      background: transparent;
-      border: 1px solid rgba(148, 163, 184, 0.5);
-      color: var(--muted);
-      box-shadow: none;
-    }
-
-    button span.icon {
-      font-size: 1.1rem;
-    }
-
-    .helper-text {
-      font-size: 0.75rem;
-      color: var(--muted);
-      margin-top: 2px;
-    }
-
-    .admin-panel {
-      margin-top: 8px;
-      padding: 8px 10px;
-      border-radius: 10px;
-      background: rgba(15, 23, 42, 0.7);
-      border: 1px dashed rgba(148, 163, 184, 0.5);
-    }
-
-    .admin-panel small {
-      font-size: 0.7rem;
-      color: var(--muted);
-    }
-
-    .admin-controls {
-      margin-top: 8px;
-      display: none; /* shown when unlocked */
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .admin-row {
-      display: flex;
-      gap: 10px;
-      align-items: flex-end;
-    }
-
-    .admin-controls .field-group-inline {
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-    }
-
-    .admin-controls input,
-    .admin-controls select {
-      font-size: 0.8rem;
-      padding: 5px 8px;
-      border-radius: 8px;
-      border: 1px solid rgba(148, 163, 184, 0.5);
-      background: #020617;
-      color: var(--text);
-    }
-
-    .admin-controls button {
-      font-size: 0.8rem;
-      padding: 6px 10px;
-      border-radius: 999px;
-    }
-
-    button.danger {
-      background: linear-gradient(135deg, #ef4444, #b91c1c);
-      color: #fff;
-      box-shadow: 0 8px 20px rgba(248, 113, 113, 0.45);
-      border: none;
-    }
-
-    /* LABEL PREVIEW AREA */
-    .label-wrapper {
-      margin-top: 16px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .label {
-      width: 400px;
-      height: 200px;
-      background: #f9fafb;
-      color: #111827;
-      border-radius: 10px;
-      box-shadow: inset 0 0 0 1px #d1d5db;
-      padding: 10px 16px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      box-sizing: border-box;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
-
-    .label-header {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: #6b7280;
-    }
-
-    .label-main {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 4px 6px;
-    }
-
-    .label-main .customer-name {
-      font-size: 1.8rem;
-      font-weight: 800;
-      line-height: 1.05;
-      white-space:normal;     /*allows wrapping*/
-      word-break: break-word;   /* wrap long chunks */
-      text-align: center;
-    }
-
-    .label-footer {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.7rem;
-      color: #374151;
-    }
-    /* Prevent long ORDER/PALLET text from overflowing */
-    .label-footer-left {
-      max-width: 260px;          /* keeps the left block contained */
-    }
-
-    .label-footer-left-line {
-      white-space: nowrap;        /* stay on one line */
-      overflow: hidden;           /* hide overflow */
-      text-overflow: ellipsis;    /* add "..." when too long */
-      font-size: 0.65rem;         /* slightly smaller so it fits better */
-    }
-
-    .label-footer span {
-      font-weight: 600;
-    }
-
-    @media print {
-  @page{
-    size: 6in 4in;   /* Exact label size */
-    margin: 0;       /* No browser margins */
+  :root {
+    --bg: #111827;
+    --card: #1f2933;
+    --accent: #3b82f6;
+    --accent-soft: #1d4ed8;
+    --text: #f9fafb;
+    --muted: #9ca3af;
   }
 
   body {
-    background: #ffffff;
     margin: 0;
-    padding: 0;
+    padding: 16px;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: radial-gradient(circle at top, #111827 0%, #020617 55%, #000 100%);
+    color: var(--text);
+    display: flex;
+    justify-content: center;
   }
 
   .app {
-    margin: 0;
-    max-width: none;
+    width: 100%;
+    max-width: 900px;
+  }
+
+  h1, h2 {
+    display: none;   /* 🔥 Remove Staged Order Labels + Customer Name Sticker */
   }
 
   .card {
-    box-shadow: none;
-    border-radius: 0;
-    border: none;
-    padding: 0;
+    background: radial-gradient(circle at top left, #111827, #020617);
+    border-radius: 18px;
+    padding: 16px 18px 20px;
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    box-shadow: 0 12px 40px rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(20px);
   }
 
   .layout {
-    display: block;
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.2fr);
+    gap: 16px;
   }
 
-  /* Hide form + admin, show only label when printing */
-  .layout > div:first-child,
-  .admin-panel {
-    display: none !important;
+  @media (max-width: 800px) {
+    .layout {
+      grid-template-columns: 1fr;
+    }
   }
 
+  .field-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
+  }
+
+  label {
+    font-size: 0.8rem;
+    margin-bottom: 4px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  input {
+    background: #020617;
+    border-radius: 10px;
+    border: 1px solid rgba(148, 163, 184, 0.5);
+    padding: 8px 10px;
+    font-size: 0.9rem;
+    color: var(--text);
+    outline: none;
+  }
+
+  input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.4);
+  }
+
+  .row {
+    display: flex;
+    gap: 10px;
+  }
+
+  .row .field-group {
+    flex: 1;
+  }
+
+  .buttons {
+    margin-top: 8px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  button {
+    border: none;
+    border-radius: 999px;
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-soft));
+    color: white;
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.45);
+  }
+
+  button.secondary {
+    background: transparent;
+    border: 1px solid rgba(148, 163, 184, 0.5);
+    color: var(--muted);
+    box-shadow: none;
+  }
+
+  /* LABEL PREVIEW */
   .label-wrapper {
-    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
   .label {
-    width: 100%;       /* MUST be 100% to match 6×4 page */
-    height: 100%;      /* Fills entire printable area */
-    margin: 0;
-    padding: 24px 32px; /* Internal padding is OK */
-    box-shadow: none;
+    width: 400px;
+    height: 200px;
+    background: #f9fafb;
+    color: #111827;
+    border-radius: 10px;
+    box-shadow: inset 0 0 0 1px #d1d5db;
+    padding: 10px 16px;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    justify-content: space-between;
   }
-}
-  </style>
+
+  .label-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #6b7280;
+  }
+
+  .label-main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 4px 6px;
+  }
+
+  .label-main .customer-name {
+    font-size: 1.9rem;
+    font-weight: 800;
+    line-height: 1.1;
+    word-break: break-word;
+  }
+
+  .label-footer {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.7rem;
+    color: #374151;
+  }
+
+  .label-footer span {
+    font-weight: 600;
+  }
+
+  /* ============================================================
+     PRINT MODE – TRUE LABEL OUTPUT (6" x 4")
+     ============================================================ */
+  @media print {
+
+    @page {
+      size: 6in 4in;   /* 🔥 The correct Zebra label size */
+      margin: 0;
+    }
+
+    body {
+      background: #ffffff;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Hide everything except the label */
+    .layout > div:first-child,
+    .admin-panel,
+    h1, h2 {
+      display: none !important;
+    }
+
+    .layout {
+      display: block;
+    }
+
+    .label-wrapper {
+      margin: 0;
+    }
+
+    /* Correct internal spacing */
+    .label {
+      width: 100%;
+      height: 100%;
+      padding: 30px 40px;   /* 🔥 Adds breathing room on all edges */
+      box-shadow: none;
+      margin: 0;
+
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;  /* No more squeezing */
+    }
+
+    .label-header {
+      margin-top: 0;
+      margin-bottom: 32px; /* more space above name */
+    }
+
+    .label-main {
+      margin-bottom: 32px; /* space between name + footer */
+    }
+
+    .label-footer {
+      margin-top: auto;     /* pushes it to bottom */
+      padding-bottom: 10px; /* buffer from true bottom */
+    }
+
+    .label-footer div:last-child {
+      text-align: right;
+      padding-right: 12px;
+    }
+  }
+</style>
+
 </head>
 <body>
   <div class="app">
