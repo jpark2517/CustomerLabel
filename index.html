@@ -517,63 +517,70 @@
       }
     }
 
-    async function addPreset() {
-      if (!adminUnlocked) {
-        alert('Unlock admin first.');
-        return;
-      }
-      const name = newPresetNameInput.value.trim();
-      if (!name) return;
+async function addPreset() {
+  if (!adminUnlocked) {
+    alert('Unlock admin first.');
+    return;
+  }
+  const name = newPresetNameInput.value.trim();
+  if (!name) return;
 
-      try {
-        const res = await fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            action: 'add',
-            name,
-            adminKey: ADMIN_PASSWORD
-          })
-        });
-        const data = await res.json();
-        if (!data.ok) throw new Error(data.error || 'Failed to add preset');
+  try {
+    const payload = {
+      action: 'add',
+      name,
+      adminKey: ADMIN_PASSWORD
+    };
 
-        // Refresh from API
-        newPresetNameInput.value = '';
-        await fetchPresetsFromApi();
-      } catch (err) {
-        console.error(err);
-        alert('Error adding preset.');
-      }
-    }
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      body: new URLSearchParams({
+        payload: JSON.stringify(payload)
+      })
+    });
 
-    async function deletePreset() {
-      if (!adminUnlocked) {
-        alert('Unlock admin first.');
-        return;
-      }
-      const toDelete = deletePresetSelect.value;
-      if (!toDelete) return;
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error || 'Failed to add preset');
 
-      try {
-        const res = await fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            action: 'delete',
-            name: toDelete,
-            adminKey: ADMIN_PASSWORD
-          })
-        });
-        const data = await res.json();
-        if (!data.ok) throw new Error(data.error || 'Failed to delete preset');
+    newPresetNameInput.value = '';
+    await fetchPresetsFromApi();
+  } catch (err) {
+    console.error(err);
+    alert('Error adding preset.');
+  }
+}
 
-        await fetchPresetsFromApi();
-      } catch (err) {
-        console.error(err);
-        alert('Error deleting preset.');
-      }
-    }
+async function deletePreset() {
+  if (!adminUnlocked) {
+    alert('Unlock admin first.');
+    return;
+  }
+  const toDelete = deletePresetSelect.value;
+  if (!toDelete) return;
+
+  try {
+    const payload = {
+      action: 'delete',
+      name: toDelete,
+      adminKey: ADMIN_PASSWORD
+    };
+
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      body: new URLSearchParams({
+        payload: JSON.stringify(payload)
+      })
+    });
+
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error || 'Failed to delete preset');
+
+    await fetchPresetsFromApi();
+  } catch (err) {
+    console.error(err);
+    alert('Error deleting preset.');
+  }
+}
 
     function updatePreview() {
       previewCustomerName.textContent =
