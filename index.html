@@ -144,14 +144,19 @@
     justify-content: space-between;
   }
 
-  .label-header {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: #6b7280;
-  }
+.label-header {
+  display: flex;
+  justify-content: flex-start;       /* only left side now */
+  font-size: 0.9rem;                 /* bigger text */
+  text-transform: uppercase;
+  letter-spacing: 0.04em;            /* less spaced out for thermal */
+  color: #111827;                    /* darker = prints cleaner */
+  font-weight: 700;                  /* bold for thermal clarity */
+}
+
+.label-brand {
+  /* optional fine-tuning for just the brand text */
+}
 
   .label-main {
     flex: 1;
@@ -334,7 +339,6 @@
             <div class="label" id="labelPreview">
               <div class="label-header">
                 <div>APOLLON WIRE &amp; CABLE</div>
-                <div>STAGED ORDER</div>
               </div>
 
               <div class="label-main">
