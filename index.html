@@ -164,34 +164,30 @@
       color: var(--muted);
     }
 
-    .admin-controls {
-      margin-top: 8px;
-      display: none; /* shown when unlocked */
-      gap: 8px;
-      flex-wrap: wrap;
-    }
+/* NEW stacked admin layout */
+.admin-controls {
+  margin-top: 8px;
+  display: none; /* shown when unlocked */
+  flex-direction: column;
+  gap: 12px;
+}
 
-    .admin-controls .field-group-inline {
-      display: flex;
-      flex-direction: column;
-      margin-bottom: 6px;
-    }
+.admin-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+}
 
-    .admin-controls input,
-    .admin-controls select {
-      font-size: 0.8rem;
-      padding: 5px 8px;
-      border-radius: 8px;
-      border: 1px solid rgba(148, 163, 184, 0.5);
-      background: #020617;
-      color: var(--text);
-    }
+.admin-controls .field-group-inline {
+  flex: 1;
+}
 
-    .admin-controls button {
-      font-size: 0.8rem;
-      padding: 6px 10px;
-      border-radius: 999px;
-    }
+button.danger {
+  background: linear-gradient(135deg, #ef4444, #b91c1c);
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(248, 113, 113, 0.45);
+  border: none;
+}
 
     /* LABEL PREVIEW AREA */
     .label-wrapper {
@@ -288,138 +284,145 @@
 <body>
   <div class="app">
     <h1>Staged Order Labels</h1>
-    <h2>Zebra GX420 • Customer Name Sticker</h2>
+    <h2>Customer Name Sticker</h2>
 
     <div class="card">
-      <div class="layout">
-        <!-- LEFT: FORM -->
-        <div>
-          <div class="field-group">
-            <label for="customerName">Customer Name</label>
-            <input id="customerName" placeholder="Mr. Supply / Home Depot / etc." />
-            <div class="helper-text">Click a preset or type manually.</div>
+  <div class="layout">
+    <!-- LEFT: FORM (no admin here) -->
+    <div>
+      <div class="field-group">
+        <label for="customerName">Customer Name</label>
+        <input id="customerName" placeholder="Mr. Supply / Home Depot / etc." />
+        <div class="helper-text">Click a preset or type manually.</div>
+      </div>
+
+      <div class="field-group">
+        <label for="presetSelect">Presets</label>
+        <select id="presetSelect">
+          <option value="">— Select customer —</option>
+        </select>
+        <div class="helper-text">Choose a preset or type manually above.</div>
+      </div>
+
+      <div class="row">
+        <div class="field-group">
+          <label for="orderNumber">Order #</label>
+          <input id="orderNumber" placeholder="SO-12345" />
+        </div>
+        <div class="field-group">
+          <label for="poNumber">PO # (optional)</label>
+          <input id="poNumber" placeholder="PO-98765" />
+          <div class="helper-text">Used for reference only, not printed.</div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field-group">
+          <label for="palletQty">Pallet Qty</label>
+          <input id="palletQty" placeholder="1 of 12" />
+        </div>
+        <div class="field-group">
+          <label for="shipDate">Ship Date</label>
+          <input id="shipDate" type="date" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field-group">
+          <label for="stagingLocation">Staging Location (optional)</label>
+          <input id="stagingLocation" placeholder="Dock 2 / Aisle F / etc." />
+          <div class="helper-text">For you to see here only (not printed).</div>
+        </div>
+      </div>
+
+      <div class="buttons">
+        <button type="button" onclick="printLabel()">
+          <span class="icon">🖨️</span>
+          <span>Print Label</span>
+        </button>
+        <button type="button" class="secondary" onclick="clearFields()">
+          <span class="icon">♻️</span>
+          <span>Clear</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- RIGHT: ADMIN + LABEL PREVIEW -->
+    <div>
+      <!-- ADMIN PANEL FOR PRESETS -->
+      <div class="admin-panel">
+        <label for="adminPassword">Admin (manage presets)</label>
+        <input
+          type="password"
+          id="adminPassword"
+          placeholder="Enter password"
+        />
+        <small>Hint: Hank Jung's 1st year working @ Apollon</small>
+        <div class="buttons" style="margin-top: 6px;">
+          <button type="button" class="secondary" onclick="unlockAdmin()">
+            <span class="icon">🔓</span>
+            <span>Unlock</span>
+          </button>
+        </div>
+
+        <div class="admin-controls" id="adminControls">
+          <!-- Add preset row -->
+          <div class="admin-row">
+            <div class="field-group-inline">
+              <label for="newPresetName">Add preset</label>
+              <input
+                id="newPresetName"
+                placeholder="New customer name"
+              />
+            </div>
+            <button type="button" onclick="addPreset()">Add</button>
           </div>
 
-          <!-- PRESET CUSTOMER BUTTONS -->
-          <div class="field-group">
-            <label for="presetSelect">Presets</label>
-              <select id="presetSelect">
-                <option value="">— Select customer —</option>
-              </select>
-          <div class="helper-text">Choose a preset or type manually above.</div>
-          </div>
-
-
-          <!-- ADMIN PANEL FOR PRESETS -->
-          <div class="admin-panel">
-            <label for="adminPassword">Admin (manage presets)</label>
-            <input
-              type="password"
-              id="adminPassword"
-              placeholder="Enter password"
-            />
-            <small>Hint: Hank Jung's 1st year working @ Apollon</small>
-            <div class="buttons" style="margin-top: 6px;">
-              <button type="button" class="secondary" onclick="unlockAdmin()">
-                <span class="icon">🔓</span>
-                <span>Unlock</span>
-              </button>
+          <!-- Delete preset row -->
+          <div class="admin-row">
+            <div class="field-group-inline">
+              <label for="deletePresetSelect">Delete preset</label>
+              <select id="deletePresetSelect"></select>
             </div>
-
-            <div class="admin-controls" id="adminControls">
-              <div class="field-group-inline">
-                <label for="newPresetName">Add preset</label>
-                <input
-                  id="newPresetName"
-                  placeholder="New customer name"
-                />
-              </div>
-              <button type="button" onclick="addPreset()">Add</button>
-
-              <div class="field-group-inline">
-                <label for="deletePresetSelect">Delete preset</label>
-                <select id="deletePresetSelect"></select>
-              </div>
-              <button type="button" class="secondary" onclick="deletePreset()">
-                Delete
-              </button>
-            </div>
-          </div>
-
-          <div class="row">
-            <div class="field-group">
-              <label for="orderNumber">Order #</label>
-              <input id="orderNumber" placeholder="SO-12345" />
-            </div>
-            <div class="field-group">
-              <label for="poNumber">PO # (optional)</label>
-              <input id="poNumber" placeholder="PO-98765" />
-              <div class="helper-text">Used for reference only, not printed.</div>
-            </div>
-          </div>
-
-          <div class="row">
-            <div class="field-group">
-              <label for="palletQty">Pallet Qty</label>
-              <input id="palletQty" placeholder="1 of 12" />
-            </div>
-            <div class="field-group">
-              <label for="shipDate">Ship Date</label>
-              <input id="shipDate" type="date" />
-            </div>
-          </div>
-
-          <div class="row">
-            <div class="field-group">
-              <label for="stagingLocation">Staging Location (optional)</label>
-              <input id="stagingLocation" placeholder="Dock 2 / Aisle F / etc." />
-              <div class="helper-text">For you to see here only (not printed).</div>
-            </div>
-          </div>
-
-          <div class="buttons">
-            <button type="button" onclick="printLabel()">
-              <span class="icon">🖨️</span>
-              <span>Print Label</span>
-            </button>
-            <button type="button" class="secondary" onclick="clearFields()">
-              <span class="icon">♻️</span>
-              <span>Clear</span>
+            <button type="button" class="danger" onclick="deletePreset()">
+              Delete
             </button>
           </div>
         </div>
+      </div>
 
-        <!-- RIGHT: LABEL PREVIEW -->
-        <div class="label-wrapper">
-          <div class="label" id="labelPreview">
-            <div class="label-header">
-              <div>APOLLON WIRE &amp; CABLE</div>
-              <div>STAGED ORDER</div>
+      <!-- LABEL PREVIEW -->
+      <div class="label-wrapper">
+        <div class="label" id="labelPreview">
+          <div class="label-header">
+            <div>APOLLON WIRE &amp; CABLE</div>
+            <div>STAGED ORDER</div>
+          </div>
+
+          <div class="label-main">
+            <div class="customer-name" id="previewCustomerName">
+              CUSTOMER NAME
             </div>
+          </div>
 
-            <div class="label-main">
-              <div class="customer-name" id="previewCustomerName">
-                CUSTOMER NAME
+          <div class="label-footer">
+            <div>
+              <div id="orderLine" style="display:none;">
+                ORDER: <span id="previewOrderNumber"></span>
+              </div>
+              <div id="palletLine" style="display:none;">
+                PALLET: <span id="previewPalletQty"></span>
               </div>
             </div>
-
-            <div class="label-footer">
-              <div>
-                <div id="orderLine" style="display:none;">
-                  ORDER: <span id="previewOrderNumber"></span>
-                </div>
-                <div id="palletLine" style="display:none;">
-                  PALLET: <span id="previewPalletQty"></span>
-                </div>
-              </div>
-              <div style="text-align:right">
-                SHIP: <span id="previewShipDate">—</span>
-              </div>
+            <div style="text-align:right">
+              SHIP: <span id="previewShipDate">—</span>
             </div>
           </div>
         </div>
-      </div> <!-- layout -->
-    </div> <!-- card -->
+      </div>
+    </div>
+  </div> <!-- layout -->
+  </div> <!-- card -->
   </div> <!-- app -->
 
   <script>
