@@ -183,9 +183,9 @@
   /* ============================================================
      PRINT MODE – TRUE LABEL OUTPUT (6" x 4")
      ============================================================ */
-  @media print {
+ @media print {
   @page {
-    size: 4in 6in; /* Portrait page */
+    size: 4in 6in;
     margin: 0;
   }
 
@@ -194,21 +194,22 @@
     padding: 0;
   }
 
-  /* Hide UI */
   .layout > div:first-child,
   .admin-panel {
     display: none !important;
   }
 
-  /* Rotate the label to fit 4×6 orientation */
   .label-wrapper {
     width: 6in;
     height: 4in;
-    transform: rotate(90deg);
-    transform-origin: top left;
     position: absolute;
-    top: 0;
+
+    /* Move the rotated label into the printable area */
+    top: 6in;   
     left: 0;
+
+    transform: rotate(-90deg);
+    transform-origin: top left;
   }
 
   .label {
