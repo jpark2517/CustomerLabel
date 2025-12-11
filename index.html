@@ -302,11 +302,13 @@
 
           <!-- PRESET CUSTOMER BUTTONS -->
           <div class="field-group">
-            <label>Presets</label>
-            <div class="buttons" id="presetButtons">
-              <!-- Buttons injected by JS -->
-            </div>
+            <label for="presetSelect">Presets</label>
+              <select id="presetSelect">
+                <option value="">— Select customer —</option>
+              </select>
+          <div class="helper-text">Choose a preset or type manually above.</div>
           </div>
+
 
           <!-- ADMIN PANEL FOR PRESETS -->
           <div class="admin-panel">
@@ -441,13 +443,19 @@
   const palletLine = document.getElementById('palletLine');
 
   // ====== PRESETS / ADMIN ======
-  const presetButtonsContainer = document.getElementById('presetButtons');
+  const presetSelect = document.getElementById('presetSelect');
   const adminPasswordInput = document.getElementById('adminPassword');
   const adminControls = document.getElementById('adminControls');
   const newPresetNameInput = document.getElementById('newPresetName');
   const deletePresetSelect = document.getElementById('deletePresetSelect');
 
   const ADMIN_PASSWORD = '2024';
+    presetSelect.addEventListener('change', () => {
+  const name = presetSelect.value;
+  customerNameInput.value = name || '';
+  updatePreview();
+});
+
   let adminUnlocked = false;
 
   // Fallback defaults if API fails
@@ -464,33 +472,34 @@
   let customerPresets = [...defaultCustomerPresets];
 
   // Build chips + delete dropdown
-  function buildPresetButtons() {
-    const sorted = [...customerPresets].sort((a, b) =>
-      a.localeCompare(b, undefined, { sensitivity: 'base' })
-    );
+  function buildPresetControls() {
+  const sorted = [...customerPresets].sort((a, b) =>
+    a.localeCompare(b, undefined, { sensitivity: 'base' })
+  );
 
-    presetButtonsContainer.innerHTML = '';
-    sorted.forEach(name => {
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'chip';
-      btn.textContent = name;
-      btn.addEventListener('click', () => {
-        customerNameInput.value = name;
-        updatePreview();
-        customerNameInput.focus();
-      });
-      presetButtonsContainer.appendChild(btn);
-    });
+  // Main preset dropdown
+  presetSelect.innerHTML = '';
+  const placeholder = document.createElement('option');
+  placeholder.value = '';
+  placeholder.textContent = '— Select customer —';
+  presetSelect.appendChild(placeholder);
 
-    deletePresetSelect.innerHTML = '';
-    sorted.forEach(name => {
-      const opt = document.createElement('option');
-      opt.value = name;
-      opt.textContent = name;
-      deletePresetSelect.appendChild(opt);
-    });
-  }
+  sorted.forEach(name => {
+    const opt = document.createElement('option');
+    opt.value = name;
+    opt.textContent = name;
+    presetSelect.appendChild(opt);
+  });
+
+  // Delete dropdown
+  deletePresetSelect.innerHTML = '';
+  sorted.forEach(name => {
+    const opt = document.createElement('option');
+    opt.value = name;
+    opt.textContent = name;
+    deletePresetSelect.appendChild(opt);
+  });
+}
 
   // GET presets from Google Sheets
   async function fetchPresetsFromApi() {
@@ -504,7 +513,7 @@
     } catch (err) {
       console.warn('Error fetching presets, using defaults.', err);
     }
-    buildPresetButtons();
+    buildPresetControls();
   }
 
   // Admin unlock
