@@ -2,229 +2,284 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Label Control</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
     :root{
-      --bg: #0b1220;
-      --card: rgba(15,23,42,.78);
-      --line: rgba(148,163,184,.22);
-      --muted: #94a3b8;
-      --text: #f8fafc;
-      --accent: #3b82f6;
-      --accent2:#1d4ed8;
+      --bg:#0b1220;
+      --panel:#0f1a2f;
+      --panel2:#0b1326;
+      --line:rgba(148,163,184,.22);
+      --text:#f8fafc;
+      --muted:rgba(248,250,252,.65);
+      --accent:#3b82f6;
+      --accent2:#2563eb;
     }
 
     *{ box-sizing:border-box; }
+
     body{
       margin:0;
-      padding:24px 16px;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background: radial-gradient(circle at top, #111827 0%, #020617 60%, #000 100%);
-      color: var(--text);
+      background: radial-gradient(circle at top, #0f1a2f 0%, #050914 55%, #000 100%);
+      color:var(--text);
+      padding:28px 16px 60px;
       display:flex;
       justify-content:center;
     }
 
-    .app{ width:100%; max-width:980px; }
+    .app{
+      width:100%;
+      max-width:1100px;
+    }
 
     .card{
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:22px;
       box-shadow: 0 18px 60px rgba(0,0,0,.55);
-      padding:18px;
-      backdrop-filter: blur(16px);
+      backdrop-filter: blur(18px);
+    }
+
+    .layout{
+      display:grid;
+      grid-template-columns: minmax(320px, 1fr) minmax(360px, 1fr);
+      gap:18px;
+      align-items:start;
+    }
+
+    @media(max-width: 900px){
+      .layout{ grid-template-columns: 1fr; }
     }
 
     h1{
       margin:0 0 14px;
-      font-size:1.2rem;
-      font-weight:800;
-      letter-spacing:.01em;
-    }
-
-    .grid{
-      display:grid;
-      grid-template-columns: 1.25fr .95fr;
-      gap:16px;
-      align-items:start;
-    }
-    @media (max-width:900px){
-      .grid{ grid-template-columns: 1fr; }
+      font-size:1.15rem;
+      letter-spacing:.2px;
     }
 
     .field{
-      display:flex;
-      flex-direction:column;
-      gap:6px;
       margin-bottom:12px;
     }
+
     label{
+      display:block;
       font-size:.72rem;
-      letter-spacing:.09em;
+      letter-spacing:.12em;
       text-transform:uppercase;
-      color: var(--muted);
+      color:var(--muted);
+      margin:0 0 6px;
     }
 
     input, select{
       width:100%;
-      background:#070b16;
-      border:1px solid rgba(148,163,184,.32);
-      color:var(--text);
       border-radius:12px;
+      border:1px solid rgba(148,163,184,.35);
+      background: rgba(0,0,0,.25);
+      color:var(--text);
       padding:10px 12px;
       outline:none;
       font-size:.95rem;
     }
+
     input:focus, select:focus{
       border-color: rgba(59,130,246,.9);
-      box-shadow: 0 0 0 2px rgba(59,130,246,.2);
+      box-shadow: 0 0 0 2px rgba(59,130,246,.22);
     }
 
-    .row{
+    .grid2{
       display:grid;
       grid-template-columns: 1fr 1fr;
       gap:12px;
     }
-    @media (max-width:900px){
-      .row{ grid-template-columns:1fr; }
+
+    @media(max-width: 520px){
+      .grid2{ grid-template-columns: 1fr; }
     }
 
-    .btnbar{
+    .actions{
+      margin-top:12px;
       display:flex;
       gap:10px;
-      align-items:center;
       flex-wrap:wrap;
-      margin-top:6px;
+      align-items:center;
     }
+
     button{
       border:none;
-      cursor:pointer;
       border-radius:999px;
       padding:10px 16px;
       font-weight:700;
-      color:#fff;
+      cursor:pointer;
+      color:white;
       background: linear-gradient(135deg, var(--accent), var(--accent2));
-      box-shadow: 0 10px 24px rgba(37,99,235,.35);
+      box-shadow: 0 10px 26px rgba(37,99,235,.38);
     }
+
     button.secondary{
       background: transparent;
-      color: var(--text);
-      border: 1px solid rgba(148,163,184,.35);
+      border:1px solid rgba(148,163,184,.40);
+      color:var(--text);
       box-shadow:none;
       font-weight:700;
     }
 
-    /* Admin panel */
-    .admin{
-      margin-top:14px;
-      padding:12px;
-      border-radius:14px;
-      border:1px dashed rgba(148,163,184,.35);
-      background: rgba(2,6,23,.35);
-    }
-    .admin small{
-      color: var(--muted);
-      display:block;
-      margin-top:6px;
-      font-size:.78rem;
-    }
-    .admin-controls{
-      display:none;
-      gap:10px;
-      margin-top:12px;
-      align-items:flex-end;
-      flex-wrap:wrap;
-    }
-    .admin-controls .mini{
-      flex: 1 1 260px;
-    }
-    .danger{
-      background: linear-gradient(135deg, #ef4444, #b91c1c);
-      box-shadow: 0 10px 24px rgba(239,68,68,.30);
+    .hint{
+      margin-top:8px;
+      font-size:.85rem;
+      color:var(--muted);
     }
 
-    /* Preview card */
+    /* Preview label */
     .previewWrap{
       display:flex;
       justify-content:center;
     }
 
     .labelPreview{
-      width: 420px;
-      max-width:100%;
-      aspect-ratio: 4 / 3; /* just preview proportion */
+      width:100%;
+      max-width:520px;
+      aspect-ratio: 4 / 3; /* on-screen preview shape only */
       background:#fff;
-      border-radius:14px;
-      box-shadow: 0 20px 50px rgba(0,0,0,.35);
-      overflow:hidden;
-      border: 1px solid rgba(0,0,0,.08);
+      border-radius:12px;
+      box-shadow: inset 0 0 0 1px #d1d5db, 0 18px 40px rgba(0,0,0,.35);
+      padding:16px 18px;
       display:flex;
       flex-direction:column;
+      gap:10px;
+      overflow:hidden;
     }
 
-    .lp-header{
+    .lpHeader{
       display:flex;
-      justify-content:flex-start;
-      padding:14px 16px 6px 16px;
-      font-weight:900;
+      justify-content:space-between;
+      align-items:flex-start;
+      font-size:14px;
+      font-weight:800;
       letter-spacing:.08em;
+      color:#111827;
       text-transform:uppercase;
-      font-size:14px;          /* thicker = less bleeding */
-      color:#000;
     }
 
-    .lp-main{
+    .lpCenter{
       flex:1;
       display:flex;
       align-items:center;
       justify-content:center;
-      padding: 8px 18px;
       text-align:center;
+      padding:6px 10px;
+      overflow:hidden;
     }
-    .lp-customer{
+
+    .customerName{
       font-weight:900;
       color:#000;
       line-height:1.02;
-      letter-spacing:.01em;
+      font-size:92px; /* will be auto-fit smaller */
       word-break: break-word;
-      overflow-wrap:anywhere;
-      font-size: 92px; /* will be auto-fit down */
+      overflow:hidden;
+      max-height:100%;
     }
 
-    .lp-footer{
+    .lpFooter{
       display:flex;
       justify-content:space-between;
       gap:10px;
-      padding: 8px 16px 14px 16px;
-      font-size:14px;          /* thicker = less bleeding */
+      font-size:18px;
       font-weight:900;
-      letter-spacing:.03em;
-      text-transform:uppercase;
+      letter-spacing:.02em;
       color:#000;
+      text-transform:uppercase;
     }
-    .lp-left{
-      display:flex;
-      flex-direction:column;
-      gap:4px;
-      min-width: 0;
+
+    .lpFooter .small{
+      font-size:18px;
+      font-weight:900;
+      letter-spacing:.02em;
     }
-    .lp-right{
-      display:flex;
-      align-items:flex-end;
+
+    .lpFooter .right{
+      text-align:right;
+    }
+
+    .lpFooter .line{
+      display:block;
+      font-size:18px;
+      font-weight:900;
+      letter-spacing:.02em;
       white-space:nowrap;
     }
-    .mutedHint{
-      color: rgba(148,163,184,.85);
-      font-size:.82rem;
-      margin-top:8px;
+
+    /* Admin panel */
+    .admin{
+      margin-top:14px;
+      border-top:1px solid rgba(148,163,184,.20);
+      padding-top:14px;
     }
-    .divider{
-      height:1px;
-      background: rgba(148,163,184,.20);
-      margin: 14px 0;
+
+    .adminBox{
+      margin-top:10px;
+      padding:12px 12px 14px;
+      border-radius:14px;
+      border:1px dashed rgba(148,163,184,.35);
+      background: rgba(0,0,0,.18);
+    }
+
+    .adminRow{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:end;
+      margin-top:10px;
+    }
+
+    .adminRow .field{
+      margin:0;
+      flex:1;
+      min-width:220px;
+    }
+
+    .adminRow button{
+      padding:10px 14px;
+      font-weight:800;
+    }
+
+    .danger{
+      background: linear-gradient(135deg, #ef4444, #b91c1c);
+      box-shadow:none;
+    }
+
+    .lockRow{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:end;
+    }
+
+    .lockRow .field{
+      flex:1;
+      min-width:260px;
+      margin:0;
+    }
+
+    .unlockBtn{
+      background: transparent;
+      border:1px solid rgba(148,163,184,.45);
+      color:var(--text);
+      box-shadow:none;
+      font-weight:900;
+      padding:10px 14px;
+    }
+
+    .adminControls{
+      display:none;
+      margin-top:10px;
+    }
+
+    .adminControls.show{
+      display:block;
     }
   </style>
 </head>
@@ -232,374 +287,347 @@
 <body>
   <div class="app">
     <div class="card">
-      <h1>Label Control</h1>
-
-      <div class="grid">
-        <!-- LEFT: Controls -->
+      <div class="layout">
+        <!-- LEFT: controls -->
         <div>
-          <div class="field">
-            <label for="presetSelect">Customer Preset</label>
-            <select id="presetSelect">
-              <option value="">— Select customer —</option>
-            </select>
-          </div>
+          <h1>Label Control</h1>
 
           <div class="field">
-            <label for="customerName">Customer Name</label>
-            <input id="customerName" placeholder="Mr. Supply / Home Depot / etc." />
+            <label>Customer Preset</label>
+            <select id="presetSelect"></select>
           </div>
 
-          <div class="row">
+          <div class="field">
+            <label>Customer Name</label>
+            <input id="customerInput" type="text" placeholder="Customer name" />
+          </div>
+
+          <div class="grid2">
             <div class="field">
-              <label for="orderNumber">Order # (optional)</label>
-              <input id="orderNumber" placeholder="SO-12345"/>
+              <label>Order # (Optional)</label>
+              <input id="orderInput" type="text" placeholder="SO-12345" />
             </div>
 
             <div class="field">
-              <label for="totalPallets">Total Pallets (e.g. 12)</label>
-              <input id="totalPallets" type="number" min="1" value="1"/>
+              <label>Total Pallets (e.g. 12)</label>
+              <input id="totalInput" type="number" min="1" step="1" value="1" />
             </div>
           </div>
 
-          <div class="row">
+          <div class="grid2">
             <div class="field">
-              <label for="shipDate">Ship Date</label>
-              <input id="shipDate" type="date"/>
+              <label>Ship Date</label>
+              <input id="shipInput" type="date" />
             </div>
 
             <div class="field">
-              <label for="startPallet">Start Pallet # (optional)</label>
-              <input id="startPallet" type="number" min="1" value="1"/>
+              <label>Start Pallet # (Optional)</label>
+              <input id="startInput" type="number" min="1" step="1" value="1" />
             </div>
           </div>
 
-          <div class="btnbar">
-            <button type="button" id="printBtn">Print Pallet Labels</button>
-            <button type="button" class="secondary" id="clearBtn">Clear</button>
+          <div class="actions">
+            <button id="printBtn" type="button">Print Pallet Labels</button>
+            <button id="clearBtn" type="button" class="secondary">Clear</button>
           </div>
 
-          <div class="mutedHint">
-            Prints 1 of N, 2 of N, … on separate labels via <b>print.html</b>.
-          </div>
+          <div class="hint">Prints <b>1 of N, 2 of N, …</b> on separate labels via <code>print.html</code>.</div>
 
-          <div class="divider"></div>
-
-          <!-- ADMIN -->
           <div class="admin">
-            <div class="field">
-              <label for="adminPassword">Admin (manage presets)</label>
-              <input id="adminPassword" type="password" placeholder="Enter password"/>
-              <small>Hint: Hank Jung's 1st year working @ Apollon</small>
-            </div>
+            <div class="adminBox">
+              <label>Admin (Manage Presets)</label>
 
-            <div class="btnbar">
-              <button type="button" class="secondary" id="unlockBtn">Unlock</button>
-            </div>
-
-            <div class="admin-controls" id="adminControls">
-              <div class="field mini">
-                <label for="newPresetName">Add preset</label>
-                <input id="newPresetName" placeholder="New customer name"/>
+              <div class="lockRow">
+                <div class="field">
+                  <input id="adminPass" type="password" placeholder="Enter password" />
+                  <div class="hint">Hint: Hank Jung's 1st year working @ Apollon</div>
+                </div>
+                <button id="unlockBtn" type="button" class="unlockBtn">Unlock</button>
               </div>
-              <button type="button" id="addPresetBtn">Add</button>
 
-              <div class="field mini">
-                <label for="deletePresetSelect">Delete preset</label>
-                <select id="deletePresetSelect"></select>
+              <div id="adminControls" class="adminControls">
+                <div class="adminRow">
+                  <div class="field">
+                    <label>Add Preset</label>
+                    <input id="addPresetInput" type="text" placeholder="New customer name" />
+                  </div>
+                  <button id="addPresetBtn" type="button">Add</button>
+                </div>
+
+                <div class="adminRow">
+                  <div class="field">
+                    <label>Delete Preset</label>
+                    <select id="deletePresetSelect"></select>
+                  </div>
+                  <button id="deletePresetBtn" type="button" class="danger">Delete</button>
+                </div>
               </div>
-              <button type="button" class="danger" id="deletePresetBtn">Delete</button>
             </div>
           </div>
         </div>
 
-        <!-- RIGHT: Preview -->
+        <!-- RIGHT: preview -->
         <div class="previewWrap">
-          <div class="labelPreview" id="labelPreview">
-            <div class="lp-header" id="pvHeader">APOLLON WIRE &amp; CABLE</div>
-
-            <div class="lp-main">
-              <div class="lp-customer" id="pvCustomer">CUSTOMER</div>
+          <div class="labelPreview" aria-label="Label Preview">
+            <div class="lpHeader">
+              <div id="lpBrand">APOLLON WIRE &amp; CABLE</div>
+              <!-- removed "STAGED ORDER" entirely -->
+              <div></div>
             </div>
 
-            <div class="lp-footer">
-              <div class="lp-left">
-                <div id="pvOrderLine" style="display:none;">ORDER: <span id="pvOrder"></span></div>
-                <div>PALLET: <span id="pvPalletText">1 of 1</span></div>
+            <div class="lpCenter">
+              <div id="lpCustomer" class="customerName">CUSTOMER</div>
+            </div>
+
+            <div class="lpFooter">
+              <div class="small">
+                <span id="lpOrderLine" class="line" style="display:none;">ORDER: <span id="lpOrder"></span></span>
+                <span class="line">PALLET: <span id="lpPallet"></span></span>
               </div>
-              <div class="lp-right">
-                SHIP: <span id="pvShip">—</span>
+              <div class="right">
+                <span class="line">SHIP: <span id="lpShip"></span></span>
               </div>
             </div>
           </div>
         </div>
-      </div> <!-- grid -->
-    </div>
-  </div>
 
-<script>
-  // === CONFIG ===
-  // Your Google Apps Script Web App URL (keep yours here):
-  const API_URL = 'https://script.google.com/macros/s/AKfycbyr5srvdX4ZS90bze7PDXNm41sA7VNLcTiO8WBjkcVTdjTThL1bXx24-oAzJ3L0nGsE/exec';
+      </div><!-- /layout -->
+    </div><!-- /card -->
+  </div><!-- /app -->
 
-  // Admin password (same as your existing)
-  const ADMIN_PASSWORD = '2024';
+  <script>
+    // ---------- Presets ----------
+    const STORAGE_KEY = 'apollon_label_presets_v1';
+    const DEFAULT_PRESETS = [
+      'ACE NJ',
+      'Mr. Supply',
+      'Home Depot',
+      'College Point',
+      'Turtle & Hughes',
+      'Schwing Uniondale'
+    ];
 
-  // === Elements ===
-  const presetSelect = document.getElementById('presetSelect');
-  const customerName = document.getElementById('customerName');
-  const orderNumber = document.getElementById('orderNumber');
-  const totalPallets = document.getElementById('totalPallets');
-  const shipDate = document.getElementById('shipDate');
-  const startPallet = document.getElementById('startPallet');
-
-  const pvCustomer = document.getElementById('pvCustomer');
-  const pvOrderLine = document.getElementById('pvOrderLine');
-  const pvOrder = document.getElementById('pvOrder');
-  const pvPalletText = document.getElementById('pvPalletText');
-  const pvShip = document.getElementById('pvShip');
-
-  const adminPassword = document.getElementById('adminPassword');
-  const adminControls = document.getElementById('adminControls');
-  const newPresetName = document.getElementById('newPresetName');
-  const deletePresetSelect = document.getElementById('deletePresetSelect');
-
-  const printBtn = document.getElementById('printBtn');
-  const clearBtn = document.getElementById('clearBtn');
-  const unlockBtn = document.getElementById('unlockBtn');
-  const addPresetBtn = document.getElementById('addPresetBtn');
-  const deletePresetBtn = document.getElementById('deletePresetBtn');
-
-  // === Presets ===
-  const defaultCustomerPresets = [
-    'City Electric Supply',
-    'College Point',
-    'Graybar',
-    'Home Depot',
-    'Lowe’s',
-    'Mr. Supply',
-    'Priority Wire & Cable',
-    'Schwing Uniondale',
-    'Turtle & Hughes'
-  ];
-  let customerPresets = [...defaultCustomerPresets];
-  let adminUnlocked = false;
-
-  function sortPresets(list){
-    return [...list].sort((a,b)=>a.localeCompare(b, undefined, {sensitivity:'base'}));
-  }
-
-  function buildPresetControls(){
-    const sorted = sortPresets(customerPresets);
-
-    // main dropdown
-    presetSelect.innerHTML = '';
-    const ph = document.createElement('option');
-    ph.value = '';
-    ph.textContent = '— Select customer —';
-    presetSelect.appendChild(ph);
-
-    sorted.forEach(name=>{
-      const o = document.createElement('option');
-      o.value = name;
-      o.textContent = name;
-      presetSelect.appendChild(o);
-    });
-
-    // delete dropdown
-    deletePresetSelect.innerHTML = '';
-    sorted.forEach(name=>{
-      const o = document.createElement('option');
-      o.value = name;
-      o.textContent = name;
-      deletePresetSelect.appendChild(o);
-    });
-  }
-
-  async function fetchPresetsFromApi(){
-    try{
-      const res = await fetch(API_URL + '?action=list', { method:'GET' });
-      if(!res.ok) throw new Error('bad_network');
-      const data = await res.json();
-      if(Array.isArray(data.customers) && data.customers.length){
-        customerPresets = data.customers;
+    function loadPresets(){
+      try{
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if(!raw) return [...DEFAULT_PRESETS];
+        const arr = JSON.parse(raw);
+        if(!Array.isArray(arr) || arr.length === 0) return [...DEFAULT_PRESETS];
+        return arr.map(s => String(s)).filter(Boolean);
+      }catch{
+        return [...DEFAULT_PRESETS];
       }
-    }catch(e){
-      console.warn('Preset API failed, using defaults.', e);
     }
-    buildPresetControls();
-  }
 
-  // === Admin actions ===
-  function unlockAdmin(){
-    if(adminPassword.value === ADMIN_PASSWORD){
-      adminUnlocked = true;
-      adminControls.style.display = 'flex';
-    }else{
-      adminUnlocked = false;
-      adminControls.style.display = 'none';
-      alert('Incorrect password.');
+    function savePresets(list){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
     }
-  }
 
-  async function addPreset(){
-    if(!adminUnlocked) return alert('Unlock admin first.');
-    const name = (newPresetName.value || '').trim();
-    if(!name) return;
+    function escapeParam(s){
+      return encodeURIComponent(String(s ?? '').trim());
+    }
 
-    try{
-      const payload = { action:'add', name, adminKey: ADMIN_PASSWORD };
-      const res = await fetch(API_URL, {
-        method:'POST',
-        body: new URLSearchParams({ payload: JSON.stringify(payload) })
+    // ---------- Elements ----------
+    const presetSelect = document.getElementById('presetSelect');
+    const customerInput = document.getElementById('customerInput');
+    const orderInput = document.getElementById('orderInput');
+    const totalInput = document.getElementById('totalInput');
+    const startInput = document.getElementById('startInput');
+    const shipInput = document.getElementById('shipInput');
+
+    const lpCustomer = document.getElementById('lpCustomer');
+    const lpOrderLine = document.getElementById('lpOrderLine');
+    const lpOrder = document.getElementById('lpOrder');
+    const lpPallet = document.getElementById('lpPallet');
+    const lpShip = document.getElementById('lpShip');
+
+    const printBtn = document.getElementById('printBtn');
+    const clearBtn = document.getElementById('clearBtn');
+
+    // Admin
+    const adminPass = document.getElementById('adminPass');
+    const unlockBtn = document.getElementById('unlockBtn');
+    const adminControls = document.getElementById('adminControls');
+    const addPresetInput = document.getElementById('addPresetInput');
+    const addPresetBtn = document.getElementById('addPresetBtn');
+    const deletePresetSelect = document.getElementById('deletePresetSelect');
+    const deletePresetBtn = document.getElementById('deletePresetBtn');
+
+    // ---------- Preview Helpers ----------
+    function formatShipDate(yyyy_mm_dd){
+      if(!yyyy_mm_dd) return '';
+      const [y,m,d] = yyyy_mm_dd.split('-').map(Number);
+      if(!y || !m || !d) return '';
+      const mm = String(m).padStart(2,'0');
+      const dd = String(d).padStart(2,'0');
+      return `${mm}/${dd}/${y}`;
+    }
+
+    function autoFitCustomerText(el){
+      // shrink font until it fits in the preview box
+      const maxPx = 96;      // start size
+      const minPx = 34;      // don’t go smaller than this
+      el.style.fontSize = maxPx + 'px';
+
+      // force wrap nicely
+      el.style.wordBreak = 'break-word';
+      el.style.overflow = 'hidden';
+
+      // available height is parent height
+      const parent = el.parentElement;
+      if(!parent) return;
+
+      for(let size = maxPx; size >= minPx; size--){
+        el.style.fontSize = size + 'px';
+        if(el.scrollHeight <= parent.clientHeight && el.scrollWidth <= parent.clientWidth){
+          break;
+        }
+      }
+    }
+
+    function updatePreview(){
+      const customer = (customerInput.value || '').trim() || 'CUSTOMER';
+      const order = (orderInput.value || '').trim();
+      const total = Math.max(1, parseInt(totalInput.value || '1', 10));
+      const start = Math.max(1, parseInt(startInput.value || '1', 10));
+      const ship = formatShipDate(shipInput.value) || formatShipDate(new Date().toISOString().slice(0,10));
+
+      lpCustomer.textContent = customer;
+      autoFitCustomerText(lpCustomer);
+
+      if(order){
+        lpOrder.textContent = order;
+        lpOrderLine.style.display = 'block';
+      }else{
+        lpOrder.textContent = '';
+        lpOrderLine.style.display = 'none';
+      }
+
+      // preview shows first label number
+      lpPallet.textContent = `${start} of ${total}`;
+      lpShip.textContent = ship;
+    }
+
+    // ---------- Print ----------
+    function openPrintWindow(){
+      const customer = (customerInput.value || '').trim();
+      if(!customer){
+        alert('Please enter a customer name.');
+        customerInput.focus();
+        return;
+      }
+
+      const order = (orderInput.value || '').trim();
+      const total = Math.max(1, parseInt(totalInput.value || '1', 10));
+      const start = Math.max(1, parseInt(startInput.value || '1', 10));
+      const ship = shipInput.value || new Date().toISOString().slice(0,10);
+
+      // open print.html with query params
+      const url =
+        `print.html?customer=${escapeParam(customer)}` +
+        `&order=${escapeParam(order)}` +
+        `&total=${escapeParam(total)}` +
+        `&start=${escapeParam(start)}` +
+        `&ship=${escapeParam(ship)}`;
+
+      window.open(url, '_blank');
+    }
+
+    // ---------- Preset UI ----------
+    let presets = loadPresets();
+
+    function rebuildPresetDropdowns(){
+      presetSelect.innerHTML = '';
+      deletePresetSelect.innerHTML = '';
+
+      const placeholder = document.createElement('option');
+      placeholder.value = '';
+      placeholder.textContent = '-- Select customer --';
+      presetSelect.appendChild(placeholder);
+
+      presets.forEach(name=>{
+        const opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = name;
+        presetSelect.appendChild(opt);
+
+        const opt2 = document.createElement('option');
+        opt2.value = name;
+        opt2.textContent = name;
+        deletePresetSelect.appendChild(opt2);
       });
-      const text = await res.text();
-      const data = JSON.parse(text);
-      if(!data.ok) throw new Error(data.error || 'add_failed');
-      newPresetName.value = '';
-      await fetchPresetsFromApi();
-    }catch(e){
-      console.error(e);
-      alert('Error adding preset.');
-    }
-  }
-
-  async function deletePreset(){
-    if(!adminUnlocked) return alert('Unlock admin first.');
-    const name = deletePresetSelect.value;
-    if(!name) return;
-
-    if(!confirm(`Delete preset "${name}"?`)) return;
-
-    try{
-      const payload = { action:'delete', name, adminKey: ADMIN_PASSWORD };
-      const res = await fetch(API_URL, {
-        method:'POST',
-        body: new URLSearchParams({ payload: JSON.stringify(payload) })
-      });
-      const text = await res.text();
-      const data = JSON.parse(text);
-      if(!data.ok) throw new Error(data.error || 'delete_failed');
-      await fetchPresetsFromApi();
-    }catch(e){
-      console.error(e);
-      alert('Error deleting preset.');
-    }
-  }
-
-  // === Preview helpers ===
-  function formatShipDate(val){
-    if(!val) return '—';
-    const d = new Date(val + 'T00:00:00');
-    const mm = String(d.getMonth()+1).padStart(2,'0');
-    const dd = String(d.getDate()).padStart(2,'0');
-    const yy = d.getFullYear();
-    return `${mm}/${dd}/${yy}`;
-  }
-
-  function autoFitPreviewName(){
-    const el = pvCustomer;
-    const box = el.parentElement; // .lp-main
-    let size = 110;
-    const min = 28;
-
-    el.style.fontSize = size + 'px';
-
-    // shrink until it fits
-    while((el.scrollWidth > box.clientWidth || el.scrollHeight > box.clientHeight) && size > min){
-      size -= 2;
-      el.style.fontSize = size + 'px';
-    }
-  }
-
-  function updatePreview(){
-    const cust = (customerName.value || '').trim() || 'CUSTOMER';
-    pvCustomer.textContent = cust;
-
-    const ord = (orderNumber.value || '').trim();
-    if(ord){
-      pvOrderLine.style.display = 'block';
-      pvOrder.textContent = ord;
-    }else{
-      pvOrderLine.style.display = 'none';
-      pvOrder.textContent = '';
     }
 
-    const total = Math.max(1, parseInt(totalPallets.value || '1', 10));
-    const start = Math.max(1, parseInt(startPallet.value || '1', 10));
-    pvPalletText.textContent = `${start} of ${total}`;
+    presetSelect.addEventListener('change', ()=>{
+      if(presetSelect.value){
+        customerInput.value = presetSelect.value;
+        updatePreview();
+      }
+    });
 
-    pvShip.textContent = formatShipDate(shipDate.value);
-
-    autoFitPreviewName();
-  }
-
-  // === Printing ===
-  function openPrintWindow(){
-    const customer = (customerName.value || '').trim();
-    const order = (orderNumber.value || '').trim();
-    const total = Math.max(1, parseInt(totalPallets.value || '1', 10));
-    const start = Math.max(1, parseInt(startPallet.value || '1', 10));
-    const ship = shipDate.value || '';
-
-    if(!customer){
-      alert('Enter a Customer Name.');
-      customerName.focus();
-      return;
+    // ---------- Admin ----------
+    function isCorrectPassword(p){
+      // Hint: "Hank Jung's 1st year working @ Apollon"
+      // If his first year is 2024, then password is likely: 2024
+      // You can change this to whatever you want.
+      return String(p).trim() === '2024';
     }
 
-    const params = new URLSearchParams();
-    params.set('customer', customer);
-    params.set('order', order);
-    params.set('total', String(total));
-    params.set('start', String(start));
-    params.set('ship', ship);
+    unlockBtn.addEventListener('click', ()=>{
+      if(isCorrectPassword(adminPass.value)){
+        adminControls.classList.add('show');
+      }else{
+        alert('Incorrect password.');
+      }
+    });
 
-    // IMPORTANT: must exist in repo root
-    const url = './print.html?' + params.toString();
-    window.open(url, '_blank', 'noopener,noreferrer');
-  }
+    addPresetBtn.addEventListener('click', ()=>{
+      const name = (addPresetInput.value || '').trim();
+      if(!name) return;
 
-  function clearAll(){
-    presetSelect.value = '';
-    customerName.value = '';
-    orderNumber.value = '';
-    totalPallets.value = '1';
-    startPallet.value = '1';
-    setToday();
+      if(!presets.includes(name)){
+        presets.push(name);
+        presets.sort((a,b)=>a.localeCompare(b));
+        savePresets(presets);
+        rebuildPresetDropdowns();
+      }
+      addPresetInput.value = '';
+    });
+
+    deletePresetBtn.addEventListener('click', ()=>{
+      const name = deletePresetSelect.value;
+      if(!name) return;
+
+      const keep = presets.filter(x => x !== name);
+      if(keep.length === presets.length) return;
+
+      presets = keep.length ? keep : [...DEFAULT_PRESETS];
+      savePresets(presets);
+      rebuildPresetDropdowns();
+    });
+
+    // ---------- Controls ----------
+    printBtn.addEventListener('click', openPrintWindow);
+
+    clearBtn.addEventListener('click', ()=>{
+      presetSelect.value = '';
+      customerInput.value = '';
+      orderInput.value = '';
+      totalInput.value = '1';
+      startInput.value = '1';
+      shipInput.value = new Date().toISOString().slice(0,10);
+      updatePreview();
+    });
+
+    [customerInput, orderInput, totalInput, startInput, shipInput].forEach(el=>{
+      el.addEventListener('input', updatePreview);
+      el.addEventListener('change', updatePreview);
+    });
+
+    // Init
+    rebuildPresetDropdowns();
+    shipInput.value = new Date().toISOString().slice(0,10);
     updatePreview();
-    customerName.focus();
-  }
-
-  function setToday(){
-    const t = new Date();
-    const yyyy = t.getFullYear();
-    const mm = String(t.getMonth()+1).padStart(2,'0');
-    const dd = String(t.getDate()).padStart(2,'0');
-    shipDate.value = `${yyyy}-${mm}-${dd}`;
-  }
-
-  // === Events ===
-  presetSelect.addEventListener('change', ()=>{
-    customerName.value = presetSelect.value || '';
-    updatePreview();
-  });
-
-  [customerName, orderNumber, totalPallets, startPallet, shipDate].forEach(el=>{
-    el.addEventListener('input', updatePreview);
-    el.addEventListener('change', updatePreview);
-  });
-
-  unlockBtn.addEventListener('click', unlockAdmin);
-  addPresetBtn.addEventListener('click', addPreset);
-  deletePresetBtn.addEventListener('click', deletePreset);
-  printBtn.addEventListener('click', ()=>{ updatePreview(); openPrintWindow(); });
-  clearBtn.addEventListener('click', clearAll);
-
-  window.addEventListener('DOMContentLoaded', async ()=>{
-    setToday();
-    await fetchPresetsFromApi();
-    updatePreview();
-  });
-</script>
+  </script>
 </body>
 </html>
