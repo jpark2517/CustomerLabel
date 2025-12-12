@@ -1,182 +1,207 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<title>Print Label</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<style>
-  body { margin:0; font-family: system-ui, -apple-system, Segoe UI, sans-serif; background:#fff; }
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Print Labels</title>
+  <style>
+    /* Screen preview */
+    html, body { margin: 0; padding: 0; background: #e5e7eb; }
+    .page {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      box-sizing: border-box;
+    }
 
-  /* Print-only multi-page */
-  #printLabels { display:none; }
-
-  .label-wrapper { width: 6in; height: 4in; }
-
-  .label {
-    width: 100%;
-    height: 100%;
-    box-sizing: border-box;
-    padding: 22px 28px;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    overflow: hidden;             /* prevents 2nd black page */
-    background: #fff;
-    color: #000;
-  }
-
-  .label-header {
-    display:flex;
-    justify-content:flex-start;
-    font-weight: 900;
-    font-size: 0.95rem;           /* thicker, thermal-safe */
-    letter-spacing: 0.03em;
-    text-transform: uppercase;
-    margin-bottom: 26px;
-  }
-
-  .label-main {
-    flex: 1;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    text-align:center;
-    margin-bottom: 26px;
-  }
-
-  .customer-name {
-    font-weight: 900;
-    line-height: 1.05;
-    word-break: break-word;
-  }
-
-  .label-footer {
-    margin-top: auto;
-    display:flex;
-    justify-content: space-between;
-    font-size: 1.05rem;           /* bigger so it doesn’t “bleed” */
-    font-weight: 800;
-    padding-bottom: 10px;
-  }
-
-  /* Auto-fit name */
-  .fit-box { width: 100%; height: 100%; display:flex; align-items:center; justify-content:center; }
-
-  @media print {
-    @page { size: 4in 6in; margin: 0; }
-    html, body { margin: 0; padding: 0; }
-  }
-    /* Show multi labels */
-    #printLabels { display:block; }
-
-    /* rotate each page to print landscape label on portrait stock */
-    #printLabels .label-wrapper{
-      position: relative;
+    /* The label (LANDSCAPE 4x6) */
+    .label {
       width: 6in;
       height: 4in;
-      page-break-after: always;
-      transform: rotate(-90deg);
-      transform-origin: top left;
-      top: 6in; left: 0;
+      background: #fff;
+      color: #111;
+      border-radius: 16px;
+      box-shadow: 0 18px 50px rgba(0,0,0,.25);
+      box-sizing: border-box;
+      padding: 0.35in 0.45in;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
     }
-    #printLabels .label-wrapper:last-child { page-break-after: auto; }
-  }
-</style>
+
+    .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    /* thicker + bigger so it doesn't "bleed" / break up */
+    .brand {
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 14pt;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #000;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .customer-wrap{
+      flex: 1;
+      display: grid;
+      place-items: center;
+      padding: 0.15in 0.1in;
+    }
+
+    .customer-name{
+      font-family: Arial, Helvetica, sans-serif;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      text-align: center;
+      line-height: 1.05;
+      word-break: break-word;
+      /* JS will auto-fit this */
+      font-size: 72pt;
+      max-width: 100%;
+    }
+
+    .footer{
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 12px;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 14pt;   /* bigger so it prints clean */
+      font-weight: 800;  /* thicker so it prints clean */
+      color: #000;
+    }
+
+    .left-lines { display: grid; gap: 6px; }
+    .muted { font-weight: 800; }
+    .right { text-align: right; white-space: nowrap; }
+
+    /* Print rules */
+    @media print {
+      @page { size: 6in 4in; margin: 0; } /* 4x6 landscape */
+      html, body { margin: 0; padding: 0; background: #fff; }
+      .page { padding: 0; min-height: auto; }
+
+      .label {
+        box-shadow: none;
+        border-radius: 0;
+        width: 6in;
+        height: 4in;
+        page-break-after: always;
+      }
+
+      /* Avoid Chrome adding a second page because of overflow */
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
 </head>
+
 <body>
+  <div id="printRoot"></div>
 
-<div id="printLabels"></div>
-
-<script>
-  function getParam(name) {
-    const u = new URLSearchParams(location.search);
-    return u.get(name) || '';
-  }
-
-  function formatShipDate(iso) {
-    if (!iso) return '';
-    const d = new Date(iso + 'T00:00');
-    const mm = String(d.getMonth()+1).padStart(2,'0');
-    const dd = String(d.getDate()).padStart(2,'0');
-    const yy = d.getFullYear();
-    return `${mm}/${dd}/${yy}`;
-  }
-
-  function autoFitText(el, max=110, min=18) {
-    const box = el.parentElement;
-    let size = max;
-    el.style.fontSize = size + 'px';
-    while ((el.scrollWidth > box.clientWidth || el.scrollHeight > box.clientHeight) && size > min) {
-      size -= 2;
-      el.style.fontSize = size + 'px';
+  <script>
+    function getParam(name) {
+      const url = new URL(window.location.href);
+      return url.searchParams.get(name) || "";
     }
-  }
 
-  function makeLabelHTML({ customer, order, palletText, shipText }) {
-    const orderLine = order ? `<div>ORDER: <span>${escapeHtml(order)}</span></div>` : '';
-    const palletLine = palletText ? `<div>PALLET: <span>${escapeHtml(palletText)}</span></div>` : '';
-    const shipLine = shipText ? `SHIP: <span>${escapeHtml(shipText)}</span>` : '';
+    function formatShipDate(iso) {
+      if (!iso) return "";
+      // accepts YYYY-MM-DD
+      const d = new Date(iso + "T00:00:00");
+      if (Number.isNaN(d.getTime())) return iso;
+      const mm = String(d.getMonth() + 1).padStart(2, "0");
+      const dd = String(d.getDate()).padStart(2, "0");
+      const yy = d.getFullYear();
+      return `${mm}/${dd}/${yy}`;
+    }
 
-    return `
-      <div class="label-wrapper">
-        <div class="label">
-          <div class="label-header">APOLLON WIRE &amp; CABLE</div>
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, m => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+      }[m]));
+    }
 
-          <div class="label-main">
-            <div class="fit-box">
-              <div class="customer-name">${escapeHtml(customer || 'CUSTOMER NAME')}</div>
+    function autoFit(el) {
+      const box = el.parentElement;
+      let size = 96;      // start big
+      const min = 28;     // don't go too small
+      el.style.fontSize = size + "pt";
+
+      while ((el.scrollWidth > box.clientWidth || el.scrollHeight > box.clientHeight) && size > min) {
+        size -= 2;
+        el.style.fontSize = size + "pt";
+      }
+    }
+
+    function labelHTML({ customer, order, palletText, shipText }) {
+      const orderLine = order ? `<div>ORDER: ${escapeHtml(order)}</div>` : "";
+      const palletLine = palletText ? `<div>PALLET: ${escapeHtml(palletText)}</div>` : "";
+
+      return `
+        <div class="page">
+          <div class="label">
+            <div class="top">
+              <div class="brand">APOLLON WIRE &amp; CABLE</div>
+              <div></div>
             </div>
-          </div>
 
-          <div class="label-footer">
-            <div>
-              ${orderLine}
-              ${palletLine}
+            <div class="customer-wrap">
+              <div class="customer-name">${escapeHtml(customer || "CUSTOMER")}</div>
             </div>
-            <div style="text-align:right">${shipLine}</div>
+
+            <div class="footer">
+              <div class="left-lines">
+                ${orderLine}
+                ${palletLine}
+              </div>
+              <div class="right">
+                ${shipText ? `SHIP: ${escapeHtml(shipText)}` : ""}
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    `;
-  }
-
-  function escapeHtml(s){
-    return String(s).replace(/[&<>"']/g, m => ({
-      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
-    }[m]));
-  }
-
-  function buildPrintPages() {
-    const customer = getParam('customer');
-    const order = getParam('order');
-    const total = Math.max(1, parseInt(getParam('total') || '1', 10));
-    const start = Math.max(1, parseInt(getParam('start') || '1', 10));
-    const shipText = formatShipDate(getParam('ship'));
-
-    const container = document.getElementById('printLabels');
-    container.innerHTML = '';
-
-    const pages = [];
-    for (let i = 0; i < total; i++) {
-      const n = start + i;
-      pages.push(makeLabelHTML({
-        customer,
-        order,
-        palletText: `${n} of ${total}`,
-        shipText
-      }));
+      `;
     }
 
-    container.innerHTML = pages.join('');
+    function build() {
+      const customer = getParam("customer") || "CUSTOMER";
+      const order = getParam("order");
+      const total = Math.max(1, parseInt(getParam("total") || "1", 10));
+      const start = Math.max(1, parseInt(getParam("start") || "1", 10));
+      const ship = getParam("ship");
+      const shipText = formatShipDate(ship);
 
-    // auto-fit customer name on each label
-    container.querySelectorAll('.customer-name').forEach(el => autoFitText(el));
-  }
+      const root = document.getElementById("printRoot");
+      root.innerHTML = "";
 
-  window.addEventListener('DOMContentLoaded', () => {
-    buildPrintPages();
-    window.print();
-  });
-</script>
+      // Build N pages: "1 of 12", "2 of 12", etc.
+      let html = "";
+      for (let i = 0; i < total; i++) {
+        const n = start + i;
+        const palletText = `${n} of ${total}`;
+        html += labelHTML({ customer, order, palletText, shipText });
+      }
+      root.innerHTML = html;
+
+      // Auto-fit each customer name
+      root.querySelectorAll(".customer-name").forEach(autoFit);
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      build();
+      // Print after layout is ready
+      requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
+    });
+  </script>
 </body>
 </html>
