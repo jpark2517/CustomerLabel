@@ -2,234 +2,212 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Print Labels</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
-    *{ box-sizing:border-box; }
+    /* FORCE label size in code: 4" x 6" (portrait) */
+    @media print{
+      @page{
+        size: 4in 6in;
+        margin: 0;
+      }
+      html, body{
+        margin:0 !important;
+        padding:0 !important;
+        background:#fff !important;
+      }
+    }
+
     html, body{
       margin:0;
       padding:0;
       background:#fff;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:#000;
     }
 
-    /* IMPORTANT: label is 4" wide x 6" tall */
-    @page{
-      size: 4in 6in;
-      margin: 0;
-    }
-
-    @media print{
-      html, body{ background:#fff; }
-    }
-
-    /* Each .page becomes exactly one printed label */
+    /* Each label is EXACTLY one page */
     .page{
       width: 4in;
       height: 6in;
-      background:#fff;
+      page-break-after: always;
       display:flex;
       align-items:stretch;
       justify-content:stretch;
-      break-after: page;
-      page-break-after: always;
+      background:#fff;
     }
-    .page:last-child{
-      break-after: auto;
-      page-break-after: auto;
-    }
+    .page:last-child{ page-break-after: auto; }
 
     .label{
       width:100%;
       height:100%;
-      padding: 0.32in 0.34in; /* adjust margins on the label itself */
+      padding: 0.35in 0.35in; /* whitespace around content */
       display:flex;
       flex-direction:column;
-      gap: 0.18in;
-      overflow:hidden;
-      background:#fff;
     }
 
-    .header{
+    .top{
       display:flex;
-      justify-content:space-between;
+      justify-content:flex-start;
       align-items:flex-start;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-
-      /* thicker/bigger so it doesn't print faint */
-      font-size: 14pt;
-      font-weight: 900;
-      letter-spacing: .10em;
-      text-transform: uppercase;
-      color:#000;
+      min-height: 0.35in;
     }
 
-    /* Removed "STAGED ORDER" completely */
-    .header .right{ display:none; }
+    /* BOLDER so thermal doesn’t break up */
+    .brand{
+      font-size: 18pt;
+      font-weight: 900;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      white-space:nowrap;
+    }
 
-    .center{
+    .main{
       flex:1;
       display:flex;
       align-items:center;
       justify-content:center;
       text-align:center;
       overflow:hidden;
+      padding: 0.1in 0.05in;
     }
 
-    .customer-name{
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    .customer{
       font-weight: 900;
-      color:#000;
-      line-height: 1.02;
-      letter-spacing: .01em;
-      word-break: break-word;
+      line-height: .95;
+      font-size: 120pt; /* JS auto-fits down */
+      max-width: 100%;
+      max-height: 100%;
       overflow:hidden;
-
-      /* start big, we will auto-fit down */
-      font-size: 120pt;
-      max-height:100%;
-      max-width:100%;
+      word-break: break-word;
     }
 
-    .footer{
+    .bottom{
       display:flex;
       justify-content:space-between;
-      gap: 0.2in;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      color:#000;
-      text-transform: uppercase;
-      font-weight: 900;
-      letter-spacing: .02em;
-    }
-
-    .footer .left,
-    .footer .right{
-      font-size: 16pt; /* bigger to avoid “tiny bleed” */
-      line-height: 1.15;
+      align-items:flex-end;
+      gap:10px;
+      min-height: 0.45in;
       white-space:nowrap;
     }
 
-    .footer .left .order{
-      display:none; /* only show if order exists */
+    .meta{
+      font-size: 18pt;     /* larger to avoid “thin bleed” */
+      font-weight: 900;
+      letter-spacing: .03em;
+      text-transform: uppercase;
     }
+
+    .order{
+      margin-top: 0.12in;
+      font-size: 18pt;
+      font-weight: 900;
+      letter-spacing: .03em;
+      text-transform: uppercase;
+      white-space:nowrap;
+    }
+
+    /* No accidental dark backgrounds */
+    *{ background: transparent; }
   </style>
 </head>
-
 <body>
+
   <div id="printLabels"></div>
 
-  <script>
-    function getParam(name){
-      const url = new URL(window.location.href);
-      return url.searchParams.get(name) || '';
-    }
+<script>
+  function getParam(k){
+    const u = new URL(window.location.href);
+    return u.searchParams.get(k) || "";
+  }
 
-    function escapeHtml(s){
-      return String(s).replace(/[&<>"']/g, m => ({
-        '&':'&amp;',
-        '<':'&lt;',
-        '>':'&gt;',
-        '"':'&quot;',
-        "'":'&#39;'
-      }[m]));
-    }
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, m => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+    }[m]));
+  }
 
-    function formatShipDate(yyyy_mm_dd){
-      if(!yyyy_mm_dd) return '';
-      const [y,m,d] = yyyy_mm_dd.split('-').map(Number);
-      if(!y || !m || !d) return '';
-      const mm = String(m).padStart(2,'0');
-      const dd = String(d).padStart(2,'0');
-      return `${mm}/${dd}/${y}`;
-    }
+  function formatShipDate(iso){
+    if(!iso) return "--/--/----";
+    const [y,m,d] = iso.split("-");
+    if(!y || !m || !d) return "--/--/----";
+    return `${m}/${d}/${y}`;
+  }
 
-    function autoFitText(el){
-      // Shrink until it fits inside its parent
-      const parent = el.parentElement;
-      if(!parent) return;
+  function makeLabelHTML({ customer, order, palletText, shipText }){
+    const orderLine = order
+      ? `<div class="order">ORDER: ${escapeHtml(order)}</div>`
+      : ``;
 
-      const max = 128; // starting pt-ish
-      const min = 34;
-
-      el.style.fontSize = max + 'pt';
-
-      for(let size = max; size >= min; size--){
-        el.style.fontSize = size + 'pt';
-        if(el.scrollHeight <= parent.clientHeight && el.scrollWidth <= parent.clientWidth){
-          break;
-        }
-      }
-    }
-
-    function makeLabelHTML({ customer, order, palletText, shipText }){
-      const safeCustomer = escapeHtml(customer);
-      const safeOrder = escapeHtml(order);
-      const safePallet = escapeHtml(palletText);
-      const safeShip = escapeHtml(shipText);
-
-      return `
-        <div class="page">
-          <div class="label">
-            <div class="header">
-              <div class="left">APOLLON WIRE &amp; CABLE</div>
-              <div class="right"></div>
-            </div>
-
-            <div class="center">
-              <div class="customer-name">${safeCustomer}</div>
-            </div>
-
-            <div class="footer">
-              <div class="left">
-                <div class="order">ORDER: <span class="orderVal">${safeOrder}</span></div>
-                <div>PALLET: <span>${safePallet}</span></div>
-              </div>
-
-              <div class="right">
-                <div>SHIP: <span>${safeShip}</span></div>
-              </div>
-            </div>
+    return `
+      <div class="page">
+        <div class="label">
+          <div class="top">
+            <div class="brand">APOLLON WIRE &amp; CABLE</div>
           </div>
+
+          <div class="main">
+            <div class="customer">${escapeHtml(customer)}</div>
+          </div>
+
+          <div class="bottom">
+            <div class="meta">PALLET: ${escapeHtml(palletText)}</div>
+            <div class="meta">SHIP: ${escapeHtml(shipText)}</div>
+          </div>
+
+          ${orderLine}
         </div>
-      `;
+      </div>
+    `;
+  }
+
+  function autoFitText(el){
+    // shrink customer name until it fits the page area
+    let size = 120;     // pt
+    const min = 34;     // pt
+    el.style.fontSize = size + "pt";
+
+    while(size > min && (el.scrollHeight > el.clientHeight || el.scrollWidth > el.clientWidth)){
+      size -= 2;
+      el.style.fontSize = size + "pt";
     }
+  }
 
-    function buildPrintPages(){
-      const customer = getParam('customer').trim();
-      const order = getParam('order').trim();
-      const total = Math.max(1, parseInt(getParam('total') || '1', 10));
-      const start = Math.max(1, parseInt(getParam('start') || '1', 10));
-      const shipText = formatShipDate(getParam('ship'));
+  function buildPrintPages(){
+    const customer = getParam("customer") || "CUSTOMER";
+    const order = getParam("order");
+    const total = Math.max(1, parseInt(getParam("total") || "1", 10));
+    const start = Math.max(1, parseInt(getParam("start") || "1", 10));
+    const shipText = formatShipDate(getParam("ship"));
 
-      const container = document.getElementById('printLabels');
-      container.innerHTML = '';
+    const container = document.getElementById("printLabels");
+    container.innerHTML = "";
 
-      const pages = [];
-      for(let i = 0; i < total; i++){
-        const n = start + i;
-        pages.push(makeLabelHTML({
-          customer,
-          order,
-          palletText: `${n} of ${total}`,
-          shipText
-        }));
-      }
-
-      container.innerHTML = pages.join('');
-
-      // show order line only when order exists
-      container.querySelectorAll('.order').forEach(el=>{
-        el.style.display = order ? 'block' : 'none';
-      });
-
-      // auto-fit customer names
-      container.querySelectorAll('.customer-name').forEach(el => autoFitText(el));
+    const pages = [];
+    for(let i=0;i<total;i++){
+      const n = start + i;
+      pages.push(makeLabelHTML({
+        customer,
+        order,
+        palletText: `${n} OF ${total}`,
+        shipText
+      }));
     }
+    container.innerHTML = pages.join("");
 
-    window.addEventListener('DOMContentLoaded', ()=>{
-      buildPrintPages();
-      window.print();
+    // auto-fit after DOM paints
+    requestAnimationFrame(()=>{
+      container.querySelectorAll(".customer").forEach(el=>autoFitText(el));
     });
-  </script>
+  }
+
+  window.addEventListener("DOMContentLoaded", ()=>{
+    buildPrintPages();
+    // print once it’s built
+    setTimeout(()=>window.print(), 50);
+  });
+</script>
+
 </body>
 </html>
