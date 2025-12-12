@@ -2,66 +2,68 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Label Control</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
     :root{
       --bg:#0b1220;
-      --panel:#0f1a2f;
-      --panel2:#0b1326;
-      --line:rgba(148,163,184,.22);
+      --card:#0f1b33;
+      --border:rgba(148,163,184,.25);
       --text:#f8fafc;
-      --muted:rgba(248,250,252,.65);
+      --muted:rgba(248,250,252,.70);
       --accent:#3b82f6;
-      --accent2:#2563eb;
+      --accent2:#1d4ed8;
     }
 
     *{ box-sizing:border-box; }
-
     body{
       margin:0;
+      padding:24px 16px;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background: radial-gradient(circle at top, #0f1a2f 0%, #050914 55%, #000 100%);
       color:var(--text);
-      padding:28px 16px 60px;
+      background:
+        radial-gradient(1100px 600px at 20% -20%, rgba(59,130,246,.25), transparent 60%),
+        radial-gradient(900px 500px at 90% 10%, rgba(29,78,216,.20), transparent 55%),
+        radial-gradient(circle at top, #0b1220 0%, #030712 70%, #000 100%);
       display:flex;
       justify-content:center;
     }
 
-    .app{
-      width:100%;
-      max-width:1100px;
-    }
+    .app{ width:100%; max-width:1100px; }
 
     .card{
-      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
-      border:1px solid var(--line);
+      background: linear-gradient(180deg, rgba(15,27,51,.92), rgba(9,16,32,.92));
+      border:1px solid var(--border);
       border-radius:18px;
-      padding:22px;
-      box-shadow: 0 18px 60px rgba(0,0,0,.55);
-      backdrop-filter: blur(18px);
+      padding:18px;
+      box-shadow: 0 20px 70px rgba(0,0,0,.45);
+      backdrop-filter: blur(16px);
     }
 
     .layout{
       display:grid;
-      grid-template-columns: minmax(320px, 1fr) minmax(360px, 1fr);
-      gap:18px;
+      grid-template-columns: 1fr 1fr;
+      gap:16px;
       align-items:start;
     }
-
-    @media(max-width: 900px){
-      .layout{ grid-template-columns: 1fr; }
+    @media (max-width: 980px){
+      .layout{ grid-template-columns:1fr; }
     }
 
     h1{
       margin:0 0 14px;
-      font-size:1.15rem;
-      letter-spacing:.2px;
+      font-size:1.2rem;
+      letter-spacing:.01em;
     }
 
-    .field{
-      margin-bottom:12px;
+    .grid2{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+    }
+    @media (max-width: 560px){
+      .grid2{ grid-template-columns:1fr; }
     }
 
     label{
@@ -70,216 +72,176 @@
       letter-spacing:.12em;
       text-transform:uppercase;
       color:var(--muted);
-      margin:0 0 6px;
+      margin: 0 0 6px;
     }
 
     input, select{
       width:100%;
-      border-radius:12px;
+      background: #050b18;
       border:1px solid rgba(148,163,184,.35);
-      background: rgba(0,0,0,.25);
       color:var(--text);
+      border-radius:12px;
       padding:10px 12px;
-      outline:none;
       font-size:.95rem;
+      outline:none;
     }
-
     input:focus, select:focus{
-      border-color: rgba(59,130,246,.9);
-      box-shadow: 0 0 0 2px rgba(59,130,246,.22);
+      border-color: rgba(59,130,246,.95);
+      box-shadow: 0 0 0 2px rgba(59,130,246,.20);
     }
 
-    .grid2{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:12px;
-    }
-
-    @media(max-width: 520px){
-      .grid2{ grid-template-columns: 1fr; }
-    }
-
-    .actions{
-      margin-top:12px;
+    .row{
       display:flex;
       gap:10px;
       flex-wrap:wrap;
       align-items:center;
+      margin-top:14px;
     }
 
     button{
-      border:none;
+      border:0;
       border-radius:999px;
       padding:10px 16px;
       font-weight:700;
       cursor:pointer;
-      color:white;
+      color:#fff;
       background: linear-gradient(135deg, var(--accent), var(--accent2));
-      box-shadow: 0 10px 26px rgba(37,99,235,.38);
+      box-shadow: 0 10px 22px rgba(37,99,235,.35);
     }
-
     button.secondary{
       background: transparent;
-      border:1px solid rgba(148,163,184,.40);
-      color:var(--text);
+      color: var(--text);
+      border: 1px solid rgba(148,163,184,.35);
       box-shadow:none;
-      font-weight:700;
+      font-weight:600;
     }
 
     .hint{
-      margin-top:8px;
-      font-size:.85rem;
+      margin-top:10px;
       color:var(--muted);
+      font-size:.85rem;
     }
 
     /* Preview label */
     .previewWrap{
       display:flex;
       justify-content:center;
+      align-items:flex-start;
+      padding:8px;
     }
 
-    .labelPreview{
-      width:100%;
-      max-width:520px;
-      aspect-ratio: 4 / 3; /* on-screen preview shape only */
+    .label{
+      width: 520px;
+      height: 330px;
       background:#fff;
+      color:#000;
       border-radius:12px;
-      box-shadow: inset 0 0 0 1px #d1d5db, 0 18px 40px rgba(0,0,0,.35);
-      padding:16px 18px;
+      box-shadow: inset 0 0 0 1px #e5e7eb, 0 14px 36px rgba(0,0,0,.25);
+      padding:18px 22px;
       display:flex;
       flex-direction:column;
-      gap:10px;
-      overflow:hidden;
     }
 
-    .lpHeader{
+    .labelTop{
       display:flex;
-      justify-content:space-between;
+      justify-content:flex-start;
       align-items:flex-start;
-      font-size:14px;
-      font-weight:800;
-      letter-spacing:.08em;
-      color:#111827;
-      text-transform:uppercase;
+      gap:10px;
+      min-height: 26px;
     }
 
-    .lpCenter{
+    /* thicker so it prints clean on thermal */
+    .brand{
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color:#000;
+      white-space:nowrap;
+    }
+
+    .labelMain{
       flex:1;
       display:flex;
       align-items:center;
       justify-content:center;
       text-align:center;
-      padding:6px 10px;
+      padding: 10px 6px;
       overflow:hidden;
     }
 
     .customerName{
-      font-weight:900;
-      color:#000;
-      line-height:1.02;
-      font-size:92px; /* will be auto-fit smaller */
+      font-weight: 900;
+      line-height: .96;
+      letter-spacing: .01em;
+      font-size: 120px; /* JS will auto-fit down if needed */
       word-break: break-word;
       overflow:hidden;
-      max-height:100%;
+      max-height: 100%;
+      max-width: 100%;
     }
 
-    .lpFooter{
+    .labelBottom{
       display:flex;
       justify-content:space-between;
+      align-items:flex-end;
       gap:10px;
-      font-size:18px;
-      font-weight:900;
-      letter-spacing:.02em;
-      color:#000;
-      text-transform:uppercase;
+      margin-top:6px;
     }
 
-    .lpFooter .small{
-      font-size:18px;
-      font-weight:900;
-      letter-spacing:.02em;
-    }
-
-    .lpFooter .right{
-      text-align:right;
-    }
-
-    .lpFooter .line{
-      display:block;
-      font-size:18px;
-      font-weight:900;
-      letter-spacing:.02em;
+    .bottomLeft, .bottomRight{
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: .03em;
+      text-transform: uppercase;
       white-space:nowrap;
+    }
+
+    .orderLine{
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: .03em;
+      text-transform: uppercase;
+      margin-top: 6px;
     }
 
     /* Admin panel */
     .admin{
       margin-top:14px;
-      border-top:1px solid rgba(148,163,184,.20);
+      border-top: 1px solid rgba(148,163,184,.18);
       padding-top:14px;
     }
-
     .adminBox{
-      margin-top:10px;
-      padding:12px 12px 14px;
-      border-radius:14px;
       border:1px dashed rgba(148,163,184,.35);
-      background: rgba(0,0,0,.18);
+      border-radius:14px;
+      padding:12px;
+      background: rgba(2,6,23,.45);
     }
-
     .adminRow{
       display:flex;
       gap:10px;
       flex-wrap:wrap;
-      align-items:end;
+      align-items:flex-end;
       margin-top:10px;
     }
+    .adminRow > .field{ flex:1; min-width:220px; }
+    .adminControls{ display:none; margin-top:10px; }
+    .adminControls.show{ display:block; }
 
-    .adminRow .field{
-      margin:0;
-      flex:1;
-      min-width:220px;
-    }
-
-    .adminRow button{
-      padding:10px 14px;
-      font-weight:800;
-    }
-
-    .danger{
-      background: linear-gradient(135deg, #ef4444, #b91c1c);
-      box-shadow:none;
-    }
-
-    .lockRow{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:end;
-    }
-
-    .lockRow .field{
-      flex:1;
-      min-width:260px;
-      margin:0;
-    }
-
-    .unlockBtn{
+    .pill{
+      padding:8px 14px;
+      border-radius:999px;
       background: transparent;
-      border:1px solid rgba(148,163,184,.45);
-      color:var(--text);
-      box-shadow:none;
-      font-weight:900;
-      padding:10px 14px;
+      border: 1px solid rgba(148,163,184,.35);
+      color: var(--text);
+      font-weight:700;
+      cursor:pointer;
     }
-
-    .adminControls{
-      display:none;
-      margin-top:10px;
-    }
-
-    .adminControls.show{
-      display:block;
+    .danger{
+      background: #ef4444;
+      color: #fff;
+      border:0;
+      box-shadow: 0 10px 22px rgba(239,68,68,.25);
     }
   </style>
 </head>
@@ -288,346 +250,312 @@
   <div class="app">
     <div class="card">
       <div class="layout">
+
         <!-- LEFT: controls -->
         <div>
           <h1>Label Control</h1>
 
-          <div class="field">
-            <label>Customer Preset</label>
-            <select id="presetSelect"></select>
-          </div>
-
-          <div class="field">
-            <label>Customer Name</label>
-            <input id="customerInput" type="text" placeholder="Customer name" />
-          </div>
-
           <div class="grid2">
             <div class="field">
-              <label>Order # (Optional)</label>
-              <input id="orderInput" type="text" placeholder="SO-12345" />
+              <label>Customer Preset</label>
+              <select id="presetSelect"></select>
             </div>
-
             <div class="field">
-              <label>Total Pallets (e.g. 12)</label>
-              <input id="totalInput" type="number" min="1" step="1" value="1" />
+              <label>Customer Name</label>
+              <input id="customerInput" placeholder="Type customer name"/>
             </div>
           </div>
 
-          <div class="grid2">
+          <div class="grid2" style="margin-top:12px;">
             <div class="field">
-              <label>Ship Date</label>
-              <input id="shipInput" type="date" />
+              <label>Order # (optional)</label>
+              <input id="orderInput" placeholder="SO-12345"/>
             </div>
-
             <div class="field">
-              <label>Start Pallet # (Optional)</label>
-              <input id="startInput" type="number" min="1" step="1" value="1" />
+              <label>Total pallets (e.g. 12)</label>
+              <input id="totalInput" type="number" min="1" step="1" value="1"/>
             </div>
           </div>
 
-          <div class="actions">
-            <button id="printBtn" type="button">Print Pallet Labels</button>
-            <button id="clearBtn" type="button" class="secondary">Clear</button>
+          <div class="grid2" style="margin-top:12px;">
+            <div class="field">
+              <label>Ship date</label>
+              <input id="shipInput" type="date"/>
+            </div>
+            <div class="field">
+              <label>Start pallet # (optional)</label>
+              <input id="startInput" type="number" min="1" step="1" value="1"/>
+            </div>
           </div>
 
-          <div class="hint">Prints <b>1 of N, 2 of N, …</b> on separate labels via <code>print.html</code>.</div>
+          <div class="row">
+            <button id="printBtn">Print Pallet Labels</button>
+            <button class="secondary" id="clearBtn" type="button">Clear</button>
+          </div>
 
+          <div class="hint">Prints <b>1 of N, 2 of N, …</b> as separate labels via <code>print.html</code>.</div>
+
+          <!-- ADMIN -->
           <div class="admin">
             <div class="adminBox">
-              <label>Admin (Manage Presets)</label>
-
-              <div class="lockRow">
+              <label>Admin (manage presets)</label>
+              <div class="grid2">
                 <div class="field">
-                  <input id="adminPass" type="password" placeholder="Enter password" />
-                  <div class="hint">Hint: Hank Jung's 1st year working @ Apollon</div>
+                  <input id="adminPass" type="password" placeholder="Enter password"/>
+                  <div class="hint" style="margin-top:6px;">Hint: Hank Jung's 1st year working @ Apollon</div>
                 </div>
-                <button id="unlockBtn" type="button" class="unlockBtn">Unlock</button>
+                <div class="field" style="display:flex; justify-content:flex-end;">
+                  <button class="pill" id="unlockBtn" type="button">Unlock</button>
+                </div>
               </div>
 
               <div id="adminControls" class="adminControls">
                 <div class="adminRow">
                   <div class="field">
-                    <label>Add Preset</label>
-                    <input id="addPresetInput" type="text" placeholder="New customer name" />
+                    <label>Add preset</label>
+                    <input id="addPresetInput" placeholder="New customer name"/>
                   </div>
                   <button id="addPresetBtn" type="button">Add</button>
                 </div>
 
                 <div class="adminRow">
                   <div class="field">
-                    <label>Delete Preset</label>
+                    <label>Delete preset</label>
                     <select id="deletePresetSelect"></select>
                   </div>
-                  <button id="deletePresetBtn" type="button" class="danger">Delete</button>
+                  <button class="danger" id="deletePresetBtn" type="button">Delete</button>
                 </div>
               </div>
+
             </div>
           </div>
+
         </div>
 
         <!-- RIGHT: preview -->
         <div class="previewWrap">
-          <div class="labelPreview" aria-label="Label Preview">
-            <div class="lpHeader">
-              <div id="lpBrand">APOLLON WIRE &amp; CABLE</div>
-              <!-- removed "STAGED ORDER" entirely -->
-              <div></div>
+          <div class="label" aria-label="Label preview">
+            <div class="labelTop">
+              <div class="brand">APOLLON WIRE &amp; CABLE</div>
             </div>
 
-            <div class="lpCenter">
-              <div id="lpCustomer" class="customerName">CUSTOMER</div>
+            <div class="labelMain">
+              <div id="previewCustomer" class="customerName">CUSTOMER</div>
             </div>
 
-            <div class="lpFooter">
-              <div class="small">
-                <span id="lpOrderLine" class="line" style="display:none;">ORDER: <span id="lpOrder"></span></span>
-                <span class="line">PALLET: <span id="lpPallet"></span></span>
-              </div>
-              <div class="right">
-                <span class="line">SHIP: <span id="lpShip"></span></span>
-              </div>
+            <div class="labelBottom">
+              <div class="bottomLeft" id="previewPallet">PALLET: 1 OF 1</div>
+              <div class="bottomRight" id="previewShip">SHIP: --/--/----</div>
             </div>
+
+            <div class="orderLine" id="previewOrder" style="display:none;">ORDER: </div>
           </div>
         </div>
 
-      </div><!-- /layout -->
-    </div><!-- /card -->
-  </div><!-- /app -->
+      </div>
+    </div>
+  </div>
 
-  <script>
-    // ---------- Presets ----------
-    const STORAGE_KEY = 'apollon_label_presets_v1';
-    const DEFAULT_PRESETS = [
-      'ACE NJ',
-      'Mr. Supply',
-      'Home Depot',
-      'College Point',
-      'Turtle & Hughes',
-      'Schwing Uniondale'
-    ];
+<script>
+  // ---------- Presets (localStorage) ----------
+  const STORAGE_KEY = "apollon_customer_presets_v1";
+  const DEFAULT_PRESETS = [
+    "ACE NJ",
+    "College Point",
+    "Mr. Supply",
+    "Turtle & Hughes",
+    "Schwing Uniondale"
+  ];
 
-    function loadPresets(){
-      try{
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if(!raw) return [...DEFAULT_PRESETS];
-        const arr = JSON.parse(raw);
-        if(!Array.isArray(arr) || arr.length === 0) return [...DEFAULT_PRESETS];
-        return arr.map(s => String(s)).filter(Boolean);
-      }catch{
-        return [...DEFAULT_PRESETS];
-      }
-    }
+  function loadPresets(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      const arr = raw ? JSON.parse(raw) : null;
+      if(Array.isArray(arr) && arr.length) return arr;
+    }catch(e){}
+    return DEFAULT_PRESETS.slice();
+  }
+  function savePresets(presets){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(presets));
+  }
 
-    function savePresets(list){
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
-    }
+  let presets = loadPresets();
 
-    function escapeParam(s){
-      return encodeURIComponent(String(s ?? '').trim());
-    }
+  const presetSelect = document.getElementById("presetSelect");
+  const deletePresetSelect = document.getElementById("deletePresetSelect");
 
-    // ---------- Elements ----------
-    const presetSelect = document.getElementById('presetSelect');
-    const customerInput = document.getElementById('customerInput');
-    const orderInput = document.getElementById('orderInput');
-    const totalInput = document.getElementById('totalInput');
-    const startInput = document.getElementById('startInput');
-    const shipInput = document.getElementById('shipInput');
+  function renderPresetSelects(){
+    presetSelect.innerHTML = "";
+    deletePresetSelect.innerHTML = "";
+    presets.forEach(name=>{
+      const o1 = document.createElement("option");
+      o1.value = name; o1.textContent = name;
+      presetSelect.appendChild(o1);
 
-    const lpCustomer = document.getElementById('lpCustomer');
-    const lpOrderLine = document.getElementById('lpOrderLine');
-    const lpOrder = document.getElementById('lpOrder');
-    const lpPallet = document.getElementById('lpPallet');
-    const lpShip = document.getElementById('lpShip');
-
-    const printBtn = document.getElementById('printBtn');
-    const clearBtn = document.getElementById('clearBtn');
-
-    // Admin
-    const adminPass = document.getElementById('adminPass');
-    const unlockBtn = document.getElementById('unlockBtn');
-    const adminControls = document.getElementById('adminControls');
-    const addPresetInput = document.getElementById('addPresetInput');
-    const addPresetBtn = document.getElementById('addPresetBtn');
-    const deletePresetSelect = document.getElementById('deletePresetSelect');
-    const deletePresetBtn = document.getElementById('deletePresetBtn');
-
-    // ---------- Preview Helpers ----------
-    function formatShipDate(yyyy_mm_dd){
-      if(!yyyy_mm_dd) return '';
-      const [y,m,d] = yyyy_mm_dd.split('-').map(Number);
-      if(!y || !m || !d) return '';
-      const mm = String(m).padStart(2,'0');
-      const dd = String(d).padStart(2,'0');
-      return `${mm}/${dd}/${y}`;
-    }
-
-    function autoFitCustomerText(el){
-      // shrink font until it fits in the preview box
-      const maxPx = 96;      // start size
-      const minPx = 34;      // don’t go smaller than this
-      el.style.fontSize = maxPx + 'px';
-
-      // force wrap nicely
-      el.style.wordBreak = 'break-word';
-      el.style.overflow = 'hidden';
-
-      // available height is parent height
-      const parent = el.parentElement;
-      if(!parent) return;
-
-      for(let size = maxPx; size >= minPx; size--){
-        el.style.fontSize = size + 'px';
-        if(el.scrollHeight <= parent.clientHeight && el.scrollWidth <= parent.clientWidth){
-          break;
-        }
-      }
-    }
-
-    function updatePreview(){
-      const customer = (customerInput.value || '').trim() || 'CUSTOMER';
-      const order = (orderInput.value || '').trim();
-      const total = Math.max(1, parseInt(totalInput.value || '1', 10));
-      const start = Math.max(1, parseInt(startInput.value || '1', 10));
-      const ship = formatShipDate(shipInput.value) || formatShipDate(new Date().toISOString().slice(0,10));
-
-      lpCustomer.textContent = customer;
-      autoFitCustomerText(lpCustomer);
-
-      if(order){
-        lpOrder.textContent = order;
-        lpOrderLine.style.display = 'block';
-      }else{
-        lpOrder.textContent = '';
-        lpOrderLine.style.display = 'none';
-      }
-
-      // preview shows first label number
-      lpPallet.textContent = `${start} of ${total}`;
-      lpShip.textContent = ship;
-    }
-
-    // ---------- Print ----------
-    function openPrintWindow(){
-      const customer = (customerInput.value || '').trim();
-      if(!customer){
-        alert('Please enter a customer name.');
-        customerInput.focus();
-        return;
-      }
-
-      const order = (orderInput.value || '').trim();
-      const total = Math.max(1, parseInt(totalInput.value || '1', 10));
-      const start = Math.max(1, parseInt(startInput.value || '1', 10));
-      const ship = shipInput.value || new Date().toISOString().slice(0,10);
-
-      // open print.html with query params
-      const url =
-        `print.html?customer=${escapeParam(customer)}` +
-        `&order=${escapeParam(order)}` +
-        `&total=${escapeParam(total)}` +
-        `&start=${escapeParam(start)}` +
-        `&ship=${escapeParam(ship)}`;
-
-      window.open(url, '_blank');
-    }
-
-    // ---------- Preset UI ----------
-    let presets = loadPresets();
-
-    function rebuildPresetDropdowns(){
-      presetSelect.innerHTML = '';
-      deletePresetSelect.innerHTML = '';
-
-      const placeholder = document.createElement('option');
-      placeholder.value = '';
-      placeholder.textContent = '-- Select customer --';
-      presetSelect.appendChild(placeholder);
-
-      presets.forEach(name=>{
-        const opt = document.createElement('option');
-        opt.value = name;
-        opt.textContent = name;
-        presetSelect.appendChild(opt);
-
-        const opt2 = document.createElement('option');
-        opt2.value = name;
-        opt2.textContent = name;
-        deletePresetSelect.appendChild(opt2);
-      });
-    }
-
-    presetSelect.addEventListener('change', ()=>{
-      if(presetSelect.value){
-        customerInput.value = presetSelect.value;
-        updatePreview();
-      }
+      const o2 = document.createElement("option");
+      o2.value = name; o2.textContent = name;
+      deletePresetSelect.appendChild(o2);
     });
+  }
 
-    // ---------- Admin ----------
-    function isCorrectPassword(p){
-      // Hint: "Hank Jung's 1st year working @ Apollon"
-      // If his first year is 2024, then password is likely: 2024
-      // You can change this to whatever you want.
-      return String(p).trim() === '2024';
+  // ---------- Inputs ----------
+  const customerInput = document.getElementById("customerInput");
+  const orderInput = document.getElementById("orderInput");
+  const totalInput = document.getElementById("totalInput");
+  const startInput = document.getElementById("startInput");
+  const shipInput  = document.getElementById("shipInput");
+
+  // default ship date = today
+  (function setToday(){
+    const d = new Date();
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth()+1).padStart(2,"0");
+    const dd = String(d.getDate()).padStart(2,"0");
+    shipInput.value = `${yyyy}-${mm}-${dd}`;
+  })();
+
+  // ---------- Preview elements ----------
+  const previewCustomer = document.getElementById("previewCustomer");
+  const previewPallet   = document.getElementById("previewPallet");
+  const previewShip     = document.getElementById("previewShip");
+  const previewOrder    = document.getElementById("previewOrder");
+
+  function formatShipDate(iso){
+    if(!iso) return "--/--/----";
+    const [y,m,d] = iso.split("-");
+    if(!y || !m || !d) return "--/--/----";
+    return `${m}/${d}/${y}`;
+  }
+
+  // Auto-fit customer name inside the big box
+  function autoFitCustomer(){
+    const el = previewCustomer;
+    el.style.fontSize = "120px"; // start big
+    const min = 44;
+    let size = 120;
+
+    // shrink until it fits both width & height
+    while(size > min && (el.scrollHeight > el.clientHeight || el.scrollWidth > el.clientWidth)){
+      size -= 2;
+      el.style.fontSize = size + "px";
+    }
+  }
+
+  function updatePreview(){
+    const customer = (customerInput.value || presetSelect.value || "CUSTOMER").trim();
+    previewCustomer.textContent = customer;
+
+    const total = Math.max(1, parseInt(totalInput.value || "1", 10));
+    const start = Math.max(1, parseInt(startInput.value || "1", 10));
+    previewPallet.textContent = `PALLET: ${start} OF ${total}`;
+
+    previewShip.textContent = `SHIP: ${formatShipDate(shipInput.value)}`;
+
+    const order = (orderInput.value || "").trim();
+    if(order){
+      previewOrder.style.display = "block";
+      previewOrder.textContent = `ORDER: ${order}`;
+    }else{
+      previewOrder.style.display = "none";
+      previewOrder.textContent = "ORDER:";
     }
 
-    unlockBtn.addEventListener('click', ()=>{
-      if(isCorrectPassword(adminPass.value)){
-        adminControls.classList.add('show');
-      }else{
-        alert('Incorrect password.');
-      }
-    });
+    // next tick so layout updates before measuring
+    requestAnimationFrame(autoFitCustomer);
+  }
 
-    addPresetBtn.addEventListener('click', ()=>{
-      const name = (addPresetInput.value || '').trim();
-      if(!name) return;
+  // ---------- Print ----------
+  const printBtn = document.getElementById("printBtn");
 
-      if(!presets.includes(name)){
-        presets.push(name);
-        presets.sort((a,b)=>a.localeCompare(b));
-        savePresets(presets);
-        rebuildPresetDropdowns();
-      }
-      addPresetInput.value = '';
-    });
+  function buildPrintUrl(){
+    const customer = (customerInput.value || presetSelect.value || "").trim();
+    const order = (orderInput.value || "").trim();
+    const total = Math.max(1, parseInt(totalInput.value || "1", 10));
+    const start = Math.max(1, parseInt(startInput.value || "1", 10));
+    const ship  = shipInput.value || "";
 
-    deletePresetBtn.addEventListener('click', ()=>{
-      const name = deletePresetSelect.value;
-      if(!name) return;
+    const params = new URLSearchParams();
+    params.set("customer", customer);
+    params.set("order", order);
+    params.set("total", String(total));
+    params.set("start", String(start));
+    params.set("ship", ship);
 
-      const keep = presets.filter(x => x !== name);
-      if(keep.length === presets.length) return;
+    return `print.html?${params.toString()}`;
+  }
 
-      presets = keep.length ? keep : [...DEFAULT_PRESETS];
-      savePresets(presets);
-      rebuildPresetDropdowns();
-    });
-
-    // ---------- Controls ----------
-    printBtn.addEventListener('click', openPrintWindow);
-
-    clearBtn.addEventListener('click', ()=>{
-      presetSelect.value = '';
-      customerInput.value = '';
-      orderInput.value = '';
-      totalInput.value = '1';
-      startInput.value = '1';
-      shipInput.value = new Date().toISOString().slice(0,10);
-      updatePreview();
-    });
-
-    [customerInput, orderInput, totalInput, startInput, shipInput].forEach(el=>{
-      el.addEventListener('input', updatePreview);
-      el.addEventListener('change', updatePreview);
-    });
-
-    // Init
-    rebuildPresetDropdowns();
-    shipInput.value = new Date().toISOString().slice(0,10);
+  printBtn.addEventListener("click", ()=>{
     updatePreview();
-  </script>
+    window.open(buildPrintUrl(), "_blank");
+  });
+
+  document.getElementById("clearBtn").addEventListener("click", ()=>{
+    customerInput.value = "";
+    orderInput.value = "";
+    totalInput.value = "1";
+    startInput.value = "1";
+    updatePreview();
+  });
+
+  // Preset select -> fills customer input
+  presetSelect.addEventListener("change", ()=>{
+    customerInput.value = presetSelect.value;
+    updatePreview();
+  });
+
+  // Input listeners
+  [customerInput, orderInput, totalInput, startInput, shipInput].forEach(el=>{
+    el.addEventListener("input", updatePreview);
+    el.addEventListener("change", updatePreview);
+  });
+
+  // ---------- Admin unlock / preset mgmt ----------
+  const adminControls = document.getElementById("adminControls");
+  const unlockBtn = document.getElementById("unlockBtn");
+  const adminPass = document.getElementById("adminPass");
+  const addPresetInput = document.getElementById("addPresetInput");
+  const addPresetBtn = document.getElementById("addPresetBtn");
+  const deletePresetBtn = document.getElementById("deletePresetBtn");
+
+  const ADMIN_PASSWORD = "Hank Jung's 1st year working @ Apollon";
+
+  unlockBtn.addEventListener("click", ()=>{
+    if(adminPass.value === ADMIN_PASSWORD){
+      adminControls.classList.add("show");
+      adminPass.value = "";
+    }else{
+      alert("Incorrect password.");
+    }
+  });
+
+  addPresetBtn.addEventListener("click", ()=>{
+    const name = (addPresetInput.value || "").trim();
+    if(!name) return;
+    if(presets.includes(name)){
+      alert("That preset already exists.");
+      return;
+    }
+    presets.push(name);
+    presets.sort((a,b)=>a.localeCompare(b));
+    savePresets(presets);
+    renderPresetSelects();
+    addPresetInput.value = "";
+  });
+
+  deletePresetBtn.addEventListener("click", ()=>{
+    const name = deletePresetSelect.value;
+    if(!name) return;
+    if(!confirm(`Delete preset "${name}"?`)) return;
+    presets = presets.filter(x => x !== name);
+    if(presets.length === 0) presets = DEFAULT_PRESETS.slice();
+    savePresets(presets);
+    renderPresetSelects();
+  });
+
+  // init
+  renderPresetSelects();
+  customerInput.value = presetSelect.value;
+  updatePreview();
+</script>
 </body>
 </html>
