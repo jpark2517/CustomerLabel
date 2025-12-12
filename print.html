@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Print Label</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<style>
+  body { margin:0; font-family: system-ui, -apple-system, Segoe UI, sans-serif; background:#fff; }
+
+  /* Print-only multi-page */
+  #printLabels { display:none; }
+
+  .label-wrapper { width: 6in; height: 4in; }
+
+  .label {
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    padding: 22px 28px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    overflow: hidden;             /* prevents 2nd black page */
+    background: #fff;
+    color: #000;
+  }
+
+  .label-header {
+    display:flex;
+    justify-content:flex-start;
+    font-weight: 900;
+    font-size: 0.95rem;           /* thicker, thermal-safe */
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    margin-bottom: 26px;
+  }
+
+  .label-main {
+    flex: 1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    margin-bottom: 26px;
+  }
+
+  .customer-name {
+    font-weight: 900;
+    line-height: 1.05;
+    word-break: break-word;
+  }
+
+  .label-footer {
+    margin-top: auto;
+    display:flex;
+    justify-content: space-between;
+    font-size: 1.05rem;           /* bigger so it doesn’t “bleed” */
+    font-weight: 800;
+    padding-bottom: 10px;
+  }
+
+  /* Auto-fit name */
+  .fit-box { width: 100%; height: 100%; display:flex; align-items:center; justify-content:center; }
+
+  @media print {
+    @page { size: 4in 6in; margin: 0; }
+    body { margin:0; }
+
+    /* Show multi labels */
+    #printLabels { display:block; }
+
+    /* rotate each page to print landscape label on portrait stock */
+    #printLabels .label-wrapper{
+      position: relative;
+      width: 6in;
+      height: 4in;
+      page-break-after: always;
+      transform: rotate(-90deg);
+      transform-origin: top left;
+      top: 6in; left: 0;
+    }
+    #printLabels .label-wrapper:last-child { page-break-after: auto; }
+  }
+</style>
+</head>
+<body>
+
+<div id="printLabels"></div>
+
+<script>
+  function getParam(name) {
+    const u = new URLSearchParams(location.search);
+    return u.get(name) || '';
+  }
+
+  function formatShipDate(iso) {
+    if (!iso) return '';
+    const d = new Date(iso + 'T00:00');
+    const mm = String(d.getMonth()+1).padStart(2,'0');
+    const dd = String(d.getDate()).padStart(2,'0');
+    const yy = d.getFullYear();
+    return `${mm}/${dd}/${yy}`;
+  }
+
+  function autoFitText(el, max=110, min=18) {
+    const box = el.parentElement;
+    let size = max;
+    el.style.fontSize = size + 'px';
+    while ((el.scrollWidth > box.clientWidth || el.scrollHeight > box.clientHeight) && size > min) {
+      size -= 2;
+      el.style.fontSize = size + 'px';
+    }
+  }
+
+  function makeLabelHTML({ customer, order, palletText, shipText }) {
+    const orderLine = order ? `<div>ORDER: <span>${escapeHtml(order)}</span></div>` : '';
+    const palletLine = palletText ? `<div>PALLET: <span>${escapeHtml(palletText)}</span></div>` : '';
+    const shipLine = shipText ? `SHIP: <span>${escapeHtml(shipText)}</span>` : '';
+
+    return `
+      <div class="label-wrapper">
+        <div class="label">
+          <div class="label-header">APOLLON WIRE &amp; CABLE</div>
+
+          <div class="label-main">
+            <div class="fit-box">
+              <div class="customer-name">${escapeHtml(customer || 'CUSTOMER NAME')}</div>
+            </div>
+          </div>
+
+          <div class="label-footer">
+            <div>
+              ${orderLine}
+              ${palletLine}
+            </div>
+            <div style="text-align:right">${shipLine}</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, m => ({
+      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+    }[m]));
+  }
+
+  function buildPrintPages() {
+    const customer = getParam('customer');
+    const order = getParam('order');
+    const total = Math.max(1, parseInt(getParam('total') || '1', 10));
+    const start = Math.max(1, parseInt(getParam('start') || '1', 10));
+    const shipText = formatShipDate(getParam('ship'));
+
+    const container = document.getElementById('printLabels');
+    container.innerHTML = '';
+
+    const pages = [];
+    for (let i = 0; i < total; i++) {
+      const n = start + i;
+      pages.push(makeLabelHTML({
+        customer,
+        order,
+        palletText: `${n} of ${total}`,
+        shipText
+      }));
+    }
+
+    container.innerHTML = pages.join('');
+
+    // auto-fit customer name on each label
+    container.querySelectorAll('.customer-name').forEach(el => autoFitText(el));
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    buildPrintPages();
+    window.print();
+  });
+</script>
+</body>
+</html>
