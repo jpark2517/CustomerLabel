@@ -2,242 +2,229 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Staged Order Label Printer</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Label Control</title>
 
   <style>
     :root{
-      --bg1:#111827;
-      --bg2:#020617;
-      --card:rgba(15,23,42,.65);
-      --border:rgba(148,163,184,.28);
-      --border2:rgba(148,163,184,.45);
-      --text:#f9fafb;
-      --muted:#9ca3af;
-      --accent:#3b82f6;
+      --bg: #0b1220;
+      --card: rgba(15,23,42,.78);
+      --line: rgba(148,163,184,.22);
+      --muted: #94a3b8;
+      --text: #f8fafc;
+      --accent: #3b82f6;
       --accent2:#1d4ed8;
-      --danger:#ef4444;
-      --danger2:#b91c1c;
     }
 
     *{ box-sizing:border-box; }
-
     body{
       margin:0;
       padding:24px 16px;
-      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-      background:radial-gradient(circle at top,#111827 0%,#020617 55%,#000 100%);
-      color:var(--text);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(circle at top, #111827 0%, #020617 60%, #000 100%);
+      color: var(--text);
       display:flex;
       justify-content:center;
     }
 
-    .app{ width:100%; max-width:920px; }
+    .app{ width:100%; max-width:980px; }
 
     .card{
-      background:radial-gradient(circle at top left,#111827,var(--bg2));
-      border:1px solid var(--border);
-      border-radius:18px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 60px rgba(0,0,0,.55);
       padding:18px;
-      box-shadow:0 12px 40px rgba(15,23,42,.7);
-      backdrop-filter: blur(18px);
+      backdrop-filter: blur(16px);
     }
 
-    .title{
-      font-size:1.35rem;
-      font-weight:700;
-      margin:0 0 10px;
+    h1{
+      margin:0 0 14px;
+      font-size:1.2rem;
+      font-weight:800;
+      letter-spacing:.01em;
     }
 
+    .grid{
+      display:grid;
+      grid-template-columns: 1.25fr .95fr;
+      gap:16px;
+      align-items:start;
+    }
+    @media (max-width:900px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      margin-bottom:12px;
+    }
     label{
-      display:block;
-      font-size:.75rem;
+      font-size:.72rem;
+      letter-spacing:.09em;
       text-transform:uppercase;
-      letter-spacing:.08em;
-      color:var(--muted);
-      margin:0 0 6px;
+      color: var(--muted);
     }
 
     input, select{
       width:100%;
-      background:#020617;
+      background:#070b16;
+      border:1px solid rgba(148,163,184,.32);
       color:var(--text);
-      border:1px solid var(--border2);
       border-radius:12px;
       padding:10px 12px;
       outline:none;
       font-size:.95rem;
     }
-
     input:focus, select:focus{
-      border-color:var(--accent);
-      box-shadow:0 0 0 2px rgba(59,130,246,.18);
+      border-color: rgba(59,130,246,.9);
+      box-shadow: 0 0 0 2px rgba(59,130,246,.2);
     }
 
-    .grid{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap:14px;
-    }
-
-    .row2{
+    .row{
       display:grid;
       grid-template-columns: 1fr 1fr;
-      gap:14px;
+      gap:12px;
     }
-
-    @media (max-width:720px){
-      .row2{ grid-template-columns: 1fr; }
+    @media (max-width:900px){
+      .row{ grid-template-columns:1fr; }
     }
 
     .btnbar{
       display:flex;
       gap:10px;
-      flex-wrap:wrap;
       align-items:center;
+      flex-wrap:wrap;
       margin-top:6px;
     }
-
     button{
       border:none;
+      cursor:pointer;
       border-radius:999px;
       padding:10px 16px;
-      font-size:.95rem;
-      font-weight:600;
-      cursor:pointer;
+      font-weight:700;
       color:#fff;
-      background:linear-gradient(135deg,var(--accent),var(--accent2));
-      box-shadow:0 10px 24px rgba(37,99,235,.35);
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      box-shadow: 0 10px 24px rgba(37,99,235,.35);
     }
-
     button.secondary{
-      background:transparent;
-      color:var(--text);
-      border:1px solid var(--border2);
+      background: transparent;
+      color: var(--text);
+      border: 1px solid rgba(148,163,184,.35);
       box-shadow:none;
+      font-weight:700;
     }
-
-    button.danger{
-      background:linear-gradient(135deg,var(--danger),var(--danger2));
-      box-shadow:0 10px 24px rgba(239,68,68,.25);
-    }
-
-    .helper{
-      margin-top:6px;
-      font-size:.8rem;
-      color:var(--muted);
-    }
-
-    .divider{
-      margin:18px 0;
-      height:1px;
-      background:rgba(148,163,184,.18);
-      border:0;
-    }
-
-    /* Preview label */
-    .previewWrap{
-      display:flex;
-      justify-content:center;
-      margin-top:8px;
-    }
-
-    .label{
-      width:600px;   /* preview only */
-      height:400px;  /* preview only */
-      background:#fff;
-      color:#111;
-      border-radius:14px;
-      box-shadow:0 18px 50px rgba(0,0,0,.25);
-      padding:28px 34px;
-      display:flex;
-      flex-direction:column;
-      justify-content:space-between;
-      overflow:hidden;
-    }
-
-    .labelTop{
-      display:flex;
-      justify-content:space-between;
-      align-items:flex-start;
-      gap:12px;
-    }
-
-    .brand{
-      font-family: Arial, Helvetica, sans-serif;
-      font-size:14pt;
-      font-weight:800;
-      letter-spacing:.06em;
-      text-transform:uppercase;
-      color:#000;
-      line-height:1;
-      white-space:nowrap;
-    }
-
-    .centerBox{
-      flex:1;
-      display:grid;
-      place-items:center;
-      padding:10px 8px;
-    }
-
-    .customerBig{
-      font-family: Arial, Helvetica, sans-serif;
-      font-weight:900;
-      text-transform:uppercase;
-      letter-spacing:.02em;
-      text-align:center;
-      line-height:1.05;
-      word-break:break-word;
-      font-size:72pt; /* auto-fit will adjust */
-      max-width:100%;
-    }
-
-    .labelFoot{
-      display:flex;
-      justify-content:space-between;
-      align-items:flex-end;
-      gap:12px;
-      font-family: Arial, Helvetica, sans-serif;
-      font-size:14pt;
-      font-weight:800;
-      color:#000;
-    }
-
-    .leftLines{ display:grid; gap:6px; }
-    .rightLine{ text-align:right; white-space:nowrap; }
 
     /* Admin panel */
     .admin{
-      margin-top:10px;
+      margin-top:14px;
       padding:12px;
       border-radius:14px;
-      border:1px dashed rgba(148,163,184,.38);
-      background:rgba(2,6,23,.35);
+      border:1px dashed rgba(148,163,184,.35);
+      background: rgba(2,6,23,.35);
     }
-
-    .adminHint{
-      font-size:.78rem;
-      color:var(--muted);
+    .admin small{
+      color: var(--muted);
+      display:block;
       margin-top:6px;
+      font-size:.78rem;
+    }
+    .admin-controls{
+      display:none;
+      gap:10px;
+      margin-top:12px;
+      align-items:flex-end;
+      flex-wrap:wrap;
+    }
+    .admin-controls .mini{
+      flex: 1 1 260px;
+    }
+    .danger{
+      background: linear-gradient(135deg, #ef4444, #b91c1c);
+      box-shadow: 0 10px 24px rgba(239,68,68,.30);
     }
 
-    .adminControls{
-      margin-top:12px;
-      display:none;
-      gap:12px;
+    /* Preview card */
+    .previewWrap{
+      display:flex;
+      justify-content:center;
+    }
+
+    .labelPreview{
+      width: 420px;
+      max-width:100%;
+      aspect-ratio: 4 / 3; /* just preview proportion */
+      background:#fff;
+      border-radius:14px;
+      box-shadow: 0 20px 50px rgba(0,0,0,.35);
+      overflow:hidden;
+      border: 1px solid rgba(0,0,0,.08);
+      display:flex;
       flex-direction:column;
     }
 
-    .adminRow{
-      display:grid;
-      grid-template-columns: 1fr auto;
-      gap:10px;
-      align-items:end;
+    .lp-header{
+      display:flex;
+      justify-content:flex-start;
+      padding:14px 16px 6px 16px;
+      font-weight:900;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      font-size:14px;          /* thicker = less bleeding */
+      color:#000;
     }
 
-    @media (max-width:720px){
-      .adminRow{ grid-template-columns: 1fr; }
+    .lp-main{
+      flex:1;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 8px 18px;
+      text-align:center;
+    }
+    .lp-customer{
+      font-weight:900;
+      color:#000;
+      line-height:1.02;
+      letter-spacing:.01em;
+      word-break: break-word;
+      overflow-wrap:anywhere;
+      font-size: 92px; /* will be auto-fit down */
+    }
+
+    .lp-footer{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      padding: 8px 16px 14px 16px;
+      font-size:14px;          /* thicker = less bleeding */
+      font-weight:900;
+      letter-spacing:.03em;
+      text-transform:uppercase;
+      color:#000;
+    }
+    .lp-left{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      min-width: 0;
+    }
+    .lp-right{
+      display:flex;
+      align-items:flex-end;
+      white-space:nowrap;
+    }
+    .mutedHint{
+      color: rgba(148,163,184,.85);
+      font-size:.82rem;
+      margin-top:8px;
+    }
+    .divider{
+      height:1px;
+      background: rgba(148,163,184,.20);
+      margin: 14px 0;
     }
   </style>
 </head>
@@ -245,344 +232,374 @@
 <body>
   <div class="app">
     <div class="card">
-      <div class="title">Label Control</div>
+      <h1>Label Control</h1>
 
       <div class="grid">
+        <!-- LEFT: Controls -->
         <div>
-          <label for="presetSelect">Customer preset</label>
-          <select id="presetSelect">
-            <option value="">— Select customer —</option>
-          </select>
-        </div>
-
-        <div>
-          <label for="customerName">Customer name</label>
-          <input id="customerName" placeholder="ACE NJ" />
-        </div>
-
-        <div class="row2">
-          <div>
-            <label for="orderNumber">Order # (optional)</label>
-            <input id="orderNumber" placeholder="SO-12345" />
+          <div class="field">
+            <label for="presetSelect">Customer Preset</label>
+            <select id="presetSelect">
+              <option value="">— Select customer —</option>
+            </select>
           </div>
 
-          <div>
-            <label for="totalPallets">Total pallets (e.g. 12)</label>
-            <input id="totalPallets" inputmode="numeric" placeholder="12" />
-          </div>
-        </div>
-
-        <div class="row2">
-          <div>
-            <label for="shipDate">Ship date</label>
-            <input id="shipDate" type="date" />
+          <div class="field">
+            <label for="customerName">Customer Name</label>
+            <input id="customerName" placeholder="Mr. Supply / Home Depot / etc." />
           </div>
 
-          <div>
-            <label for="startPallet">Start pallet # (optional)</label>
-            <input id="startPallet" inputmode="numeric" placeholder="1" />
-          </div>
-        </div>
-
-        <div class="btnbar">
-          <button type="button" onclick="printPalletLabels()">Print Pallet Labels</button>
-          <button type="button" class="secondary" onclick="clearFields()">Clear</button>
-        </div>
-
-        <div class="helper">
-          Prints <b>1 of N</b>, <b>2 of N</b>, ... on separate labels via <code>print.html</code>.
-        </div>
-
-        <hr class="divider" />
-
-        <!-- Preview -->
-        <div class="previewWrap">
-          <div class="label" id="labelPreview">
-            <div class="labelTop">
-              <div class="brand" id="previewBrand">APOLLON WIRE &amp; CABLE</div>
-              <div></div>
+          <div class="row">
+            <div class="field">
+              <label for="orderNumber">Order # (optional)</label>
+              <input id="orderNumber" placeholder="SO-12345"/>
             </div>
 
-            <div class="centerBox">
-              <div class="customerBig" id="previewCustomer">CUSTOMER</div>
-            </div>
-
-            <div class="labelFoot">
-              <div class="leftLines">
-                <div id="previewOrderLine" style="display:none;">ORDER: <span id="previewOrder"></span></div>
-                <div>PALLET: <span id="previewPalletText">1 of 1</span></div>
-              </div>
-              <div class="rightLine">SHIP: <span id="previewShip">—</span></div>
+            <div class="field">
+              <label for="totalPallets">Total Pallets (e.g. 12)</label>
+              <input id="totalPallets" type="number" min="1" value="1"/>
             </div>
           </div>
-        </div>
 
-        <!-- Admin -->
-        <div class="admin">
-          <label for="adminPassword">Admin (manage presets)</label>
-          <input type="password" id="adminPassword" placeholder="Enter password" />
-          <div class="adminHint">Hint: Hank Jung's 1st year working @ Apollon</div>
+          <div class="row">
+            <div class="field">
+              <label for="shipDate">Ship Date</label>
+              <input id="shipDate" type="date"/>
+            </div>
 
-          <div class="btnbar" style="margin-top:10px;">
-            <button type="button" class="secondary" onclick="unlockAdmin()">Unlock</button>
+            <div class="field">
+              <label for="startPallet">Start Pallet # (optional)</label>
+              <input id="startPallet" type="number" min="1" value="1"/>
+            </div>
           </div>
 
-          <div class="adminControls" id="adminControls">
-            <div class="adminRow">
-              <div>
+          <div class="btnbar">
+            <button type="button" id="printBtn">Print Pallet Labels</button>
+            <button type="button" class="secondary" id="clearBtn">Clear</button>
+          </div>
+
+          <div class="mutedHint">
+            Prints 1 of N, 2 of N, … on separate labels via <b>print.html</b>.
+          </div>
+
+          <div class="divider"></div>
+
+          <!-- ADMIN -->
+          <div class="admin">
+            <div class="field">
+              <label for="adminPassword">Admin (manage presets)</label>
+              <input id="adminPassword" type="password" placeholder="Enter password"/>
+              <small>Hint: Hank Jung's 1st year working @ Apollon</small>
+            </div>
+
+            <div class="btnbar">
+              <button type="button" class="secondary" id="unlockBtn">Unlock</button>
+            </div>
+
+            <div class="admin-controls" id="adminControls">
+              <div class="field mini">
                 <label for="newPresetName">Add preset</label>
-                <input id="newPresetName" placeholder="New customer name" />
+                <input id="newPresetName" placeholder="New customer name"/>
               </div>
-              <button type="button" onclick="addPreset()">Add</button>
-            </div>
+              <button type="button" id="addPresetBtn">Add</button>
 
-            <div class="adminRow">
-              <div>
+              <div class="field mini">
                 <label for="deletePresetSelect">Delete preset</label>
                 <select id="deletePresetSelect"></select>
               </div>
-              <button type="button" class="danger" onclick="deletePreset()">Delete</button>
+              <button type="button" class="danger" id="deletePresetBtn">Delete</button>
             </div>
           </div>
         </div>
 
-      </div>
+        <!-- RIGHT: Preview -->
+        <div class="previewWrap">
+          <div class="labelPreview" id="labelPreview">
+            <div class="lp-header" id="pvHeader">APOLLON WIRE &amp; CABLE</div>
+
+            <div class="lp-main">
+              <div class="lp-customer" id="pvCustomer">CUSTOMER</div>
+            </div>
+
+            <div class="lp-footer">
+              <div class="lp-left">
+                <div id="pvOrderLine" style="display:none;">ORDER: <span id="pvOrder"></span></div>
+                <div>PALLET: <span id="pvPalletText">1 of 1</span></div>
+              </div>
+              <div class="lp-right">
+                SHIP: <span id="pvShip">—</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div> <!-- grid -->
     </div>
   </div>
 
-  <script>
-    // 🔗 Your Apps Script Web App URL (same one you already use)
-    const API_URL = "https://script.google.com/macros/s/AKfycbyr5srvdX4ZS90bze7PDXNm41sA7VNLcTiO8WBjkcVTdjTThL1bXx24-oAzJ3L0nGsE/exec";
+<script>
+  // === CONFIG ===
+  // Your Google Apps Script Web App URL (keep yours here):
+  const API_URL = 'https://script.google.com/macros/s/AKfycbyr5srvdX4ZS90bze7PDXNm41sA7VNLcTiO8WBjkcVTdjTThL1bXx24-oAzJ3L0nGsE/exec';
 
-    // Admin password (same as before)
-    const ADMIN_PASSWORD = "2024";
+  // Admin password (same as your existing)
+  const ADMIN_PASSWORD = '2024';
 
-    // Elements
-    const presetSelect = document.getElementById("presetSelect");
-    const deletePresetSelect = document.getElementById("deletePresetSelect");
-    const customerNameInput = document.getElementById("customerName");
-    const orderNumberInput = document.getElementById("orderNumber");
-    const totalPalletsInput = document.getElementById("totalPallets");
-    const startPalletInput = document.getElementById("startPallet");
-    const shipDateInput = document.getElementById("shipDate");
+  // === Elements ===
+  const presetSelect = document.getElementById('presetSelect');
+  const customerName = document.getElementById('customerName');
+  const orderNumber = document.getElementById('orderNumber');
+  const totalPallets = document.getElementById('totalPallets');
+  const shipDate = document.getElementById('shipDate');
+  const startPallet = document.getElementById('startPallet');
 
-    const previewCustomer = document.getElementById("previewCustomer");
-    const previewOrderLine = document.getElementById("previewOrderLine");
-    const previewOrder = document.getElementById("previewOrder");
-    const previewPalletText = document.getElementById("previewPalletText");
-    const previewShip = document.getElementById("previewShip");
+  const pvCustomer = document.getElementById('pvCustomer');
+  const pvOrderLine = document.getElementById('pvOrderLine');
+  const pvOrder = document.getElementById('pvOrder');
+  const pvPalletText = document.getElementById('pvPalletText');
+  const pvShip = document.getElementById('pvShip');
 
-    const adminControls = document.getElementById("adminControls");
-    const adminPasswordInput = document.getElementById("adminPassword");
-    const newPresetNameInput = document.getElementById("newPresetName");
+  const adminPassword = document.getElementById('adminPassword');
+  const adminControls = document.getElementById('adminControls');
+  const newPresetName = document.getElementById('newPresetName');
+  const deletePresetSelect = document.getElementById('deletePresetSelect');
 
-    // Defaults if API fails
-    const defaultCustomerPresets = [
-      "City Electric Supply",
-      "Graybar",
-      "Home Depot",
-      "Lowe’s",
-      "Mr. Supply",
-      "Priority Wire & Cable",
-      "Turtle & Hughes"
-    ];
-    let customerPresets = [...defaultCustomerPresets];
-    let adminUnlocked = false;
+  const printBtn = document.getElementById('printBtn');
+  const clearBtn = document.getElementById('clearBtn');
+  const unlockBtn = document.getElementById('unlockBtn');
+  const addPresetBtn = document.getElementById('addPresetBtn');
+  const deletePresetBtn = document.getElementById('deletePresetBtn');
 
-    // Preset dropdown behavior
-    presetSelect.addEventListener("change", () => {
-      const name = presetSelect.value;
-      customerNameInput.value = name || "";
-      updatePreview();
+  // === Presets ===
+  const defaultCustomerPresets = [
+    'City Electric Supply',
+    'College Point',
+    'Graybar',
+    'Home Depot',
+    'Lowe’s',
+    'Mr. Supply',
+    'Priority Wire & Cable',
+    'Schwing Uniondale',
+    'Turtle & Hughes'
+  ];
+  let customerPresets = [...defaultCustomerPresets];
+  let adminUnlocked = false;
+
+  function sortPresets(list){
+    return [...list].sort((a,b)=>a.localeCompare(b, undefined, {sensitivity:'base'}));
+  }
+
+  function buildPresetControls(){
+    const sorted = sortPresets(customerPresets);
+
+    // main dropdown
+    presetSelect.innerHTML = '';
+    const ph = document.createElement('option');
+    ph.value = '';
+    ph.textContent = '— Select customer —';
+    presetSelect.appendChild(ph);
+
+    sorted.forEach(name=>{
+      const o = document.createElement('option');
+      o.value = name;
+      o.textContent = name;
+      presetSelect.appendChild(o);
     });
 
-    // Build dropdowns
-    function buildPresetControls() {
-      const sorted = [...customerPresets].sort((a,b)=>a.localeCompare(b, undefined, {sensitivity:"base"}));
-
-      presetSelect.innerHTML = "";
-      const ph = document.createElement("option");
-      ph.value = "";
-      ph.textContent = "— Select customer —";
-      presetSelect.appendChild(ph);
-
-      sorted.forEach(name => {
-        const opt = document.createElement("option");
-        opt.value = name;
-        opt.textContent = name;
-        presetSelect.appendChild(opt);
-      });
-
-      deletePresetSelect.innerHTML = "";
-      sorted.forEach(name => {
-        const opt = document.createElement("option");
-        opt.value = name;
-        opt.textContent = name;
-        deletePresetSelect.appendChild(opt);
-      });
-    }
-
-    async function fetchPresetsFromApi() {
-      try {
-        const res = await fetch(API_URL + "?action=list", { method: "GET" });
-        if (!res.ok) throw new Error("network");
-        const data = await res.json();
-        if (Array.isArray(data.customers) && data.customers.length) {
-          customerPresets = data.customers;
-        }
-      } catch (e) {
-        console.warn("Preset API failed, using defaults.", e);
-      }
-      buildPresetControls();
-    }
-
-    function unlockAdmin() {
-      if (adminPasswordInput.value === ADMIN_PASSWORD) {
-        adminUnlocked = true;
-        adminControls.style.display = "flex";
-      } else {
-        adminUnlocked = false;
-        adminControls.style.display = "none";
-        alert("Incorrect password.");
-      }
-    }
-
-    async function addPreset() {
-      if (!adminUnlocked) return alert("Unlock admin first.");
-      const name = newPresetNameInput.value.trim();
-      if (!name) return;
-
-      try {
-        const payload = { action: "add", name, adminKey: ADMIN_PASSWORD };
-        const res = await fetch(API_URL, {
-          method: "POST",
-          body: new URLSearchParams({ payload: JSON.stringify(payload) })
-        });
-        const text = await res.text();
-        const data = JSON.parse(text);
-        if (!data.ok) throw new Error(data.error || "add failed");
-
-        newPresetNameInput.value = "";
-        await fetchPresetsFromApi();
-      } catch (e) {
-        console.error(e);
-        alert("Error adding preset.");
-      }
-    }
-
-    async function deletePreset() {
-      if (!adminUnlocked) return alert("Unlock admin first.");
-      const name = deletePresetSelect.value;
-      if (!name) return;
-
-      try {
-        const payload = { action: "delete", name, adminKey: ADMIN_PASSWORD };
-        const res = await fetch(API_URL, {
-          method: "POST",
-          body: new URLSearchParams({ payload: JSON.stringify(payload) })
-        });
-        const text = await res.text();
-        const data = JSON.parse(text);
-        if (!data.ok) throw new Error(data.error || "delete failed");
-
-        await fetchPresetsFromApi();
-      } catch (e) {
-        console.error(e);
-        alert("Error deleting preset.");
-      }
-    }
-
-    // Preview auto-fit (for long names)
-    function autoFitCustomer() {
-      const el = previewCustomer;
-      const box = el.parentElement;
-      let size = 90;      // start
-      const min = 28;
-      el.style.fontSize = size + "pt";
-      while ((el.scrollWidth > box.clientWidth || el.scrollHeight > box.clientHeight) && size > min) {
-        size -= 2;
-        el.style.fontSize = size + "pt";
-      }
-    }
-
-    function formatShip(iso){
-      if (!iso) return "—";
-      const d = new Date(iso + "T00:00:00");
-      const mm = String(d.getMonth()+1).padStart(2,"0");
-      const dd = String(d.getDate()).padStart(2,"0");
-      const yy = d.getFullYear();
-      return `${mm}/${dd}/${yy}`;
-    }
-
-    function updatePreview() {
-      const customer = customerNameInput.value.trim() || "CUSTOMER";
-      previewCustomer.textContent = customer;
-
-      const order = orderNumberInput.value.trim();
-      if (order) {
-        previewOrder.textContent = order;
-        previewOrderLine.style.display = "block";
-      } else {
-        previewOrderLine.style.display = "none";
-      }
-
-      const total = parseInt(totalPalletsInput.value || "1", 10);
-      const start = parseInt(startPalletInput.value || "1", 10);
-      const safeTotal = Number.isFinite(total) && total > 0 ? total : 1;
-      const safeStart = Number.isFinite(start) && start > 0 ? start : 1;
-
-      previewPalletText.textContent = `${safeStart} of ${safeTotal}`;
-      previewShip.textContent = formatShip(shipDateInput.value);
-
-      autoFitCustomer();
-    }
-
-    [customerNameInput, orderNumberInput, totalPalletsInput, startPalletInput, shipDateInput]
-      .forEach(el => el.addEventListener("input", updatePreview));
-
-    function setToday() {
-      const t = new Date();
-      const yyyy = t.getFullYear();
-      const mm = String(t.getMonth() + 1).padStart(2, "0");
-      const dd = String(t.getDate()).padStart(2, "0");
-      shipDateInput.value = `${yyyy}-${mm}-${dd}`;
-    }
-
-    function clearFields() {
-      presetSelect.value = "";
-      customerNameInput.value = "";
-      orderNumberInput.value = "";
-      totalPalletsInput.value = "";
-      startPalletInput.value = "";
-      setToday();
-      updatePreview();
-      customerNameInput.focus();
-    }
-
-    // ✅ This is the missing part you asked about:
-    // index.html opens print.html with URL params
-    function printPalletLabels() {
-      const customer = customerNameInput.value.trim() || "CUSTOMER";
-      const order = orderNumberInput.value.trim();
-      const total = (totalPalletsInput.value.trim() || "1");
-      const start = (startPalletInput.value.trim() || "1");
-      const ship = shipDateInput.value; // YYYY-MM-DD
-
-      const url =
-        "print.html?customer=" + encodeURIComponent(customer) +
-        "&order=" + encodeURIComponent(order) +
-        "&total=" + encodeURIComponent(total) +
-        "&start=" + encodeURIComponent(start) +
-        "&ship=" + encodeURIComponent(ship);
-
-      window.open(url, "_blank");
-    }
-
-    window.addEventListener("DOMContentLoaded", () => {
-      setToday();
-      fetchPresetsFromApi();
-      updatePreview();
+    // delete dropdown
+    deletePresetSelect.innerHTML = '';
+    sorted.forEach(name=>{
+      const o = document.createElement('option');
+      o.value = name;
+      o.textContent = name;
+      deletePresetSelect.appendChild(o);
     });
-  </script>
+  }
+
+  async function fetchPresetsFromApi(){
+    try{
+      const res = await fetch(API_URL + '?action=list', { method:'GET' });
+      if(!res.ok) throw new Error('bad_network');
+      const data = await res.json();
+      if(Array.isArray(data.customers) && data.customers.length){
+        customerPresets = data.customers;
+      }
+    }catch(e){
+      console.warn('Preset API failed, using defaults.', e);
+    }
+    buildPresetControls();
+  }
+
+  // === Admin actions ===
+  function unlockAdmin(){
+    if(adminPassword.value === ADMIN_PASSWORD){
+      adminUnlocked = true;
+      adminControls.style.display = 'flex';
+    }else{
+      adminUnlocked = false;
+      adminControls.style.display = 'none';
+      alert('Incorrect password.');
+    }
+  }
+
+  async function addPreset(){
+    if(!adminUnlocked) return alert('Unlock admin first.');
+    const name = (newPresetName.value || '').trim();
+    if(!name) return;
+
+    try{
+      const payload = { action:'add', name, adminKey: ADMIN_PASSWORD };
+      const res = await fetch(API_URL, {
+        method:'POST',
+        body: new URLSearchParams({ payload: JSON.stringify(payload) })
+      });
+      const text = await res.text();
+      const data = JSON.parse(text);
+      if(!data.ok) throw new Error(data.error || 'add_failed');
+      newPresetName.value = '';
+      await fetchPresetsFromApi();
+    }catch(e){
+      console.error(e);
+      alert('Error adding preset.');
+    }
+  }
+
+  async function deletePreset(){
+    if(!adminUnlocked) return alert('Unlock admin first.');
+    const name = deletePresetSelect.value;
+    if(!name) return;
+
+    if(!confirm(`Delete preset "${name}"?`)) return;
+
+    try{
+      const payload = { action:'delete', name, adminKey: ADMIN_PASSWORD };
+      const res = await fetch(API_URL, {
+        method:'POST',
+        body: new URLSearchParams({ payload: JSON.stringify(payload) })
+      });
+      const text = await res.text();
+      const data = JSON.parse(text);
+      if(!data.ok) throw new Error(data.error || 'delete_failed');
+      await fetchPresetsFromApi();
+    }catch(e){
+      console.error(e);
+      alert('Error deleting preset.');
+    }
+  }
+
+  // === Preview helpers ===
+  function formatShipDate(val){
+    if(!val) return '—';
+    const d = new Date(val + 'T00:00:00');
+    const mm = String(d.getMonth()+1).padStart(2,'0');
+    const dd = String(d.getDate()).padStart(2,'0');
+    const yy = d.getFullYear();
+    return `${mm}/${dd}/${yy}`;
+  }
+
+  function autoFitPreviewName(){
+    const el = pvCustomer;
+    const box = el.parentElement; // .lp-main
+    let size = 110;
+    const min = 28;
+
+    el.style.fontSize = size + 'px';
+
+    // shrink until it fits
+    while((el.scrollWidth > box.clientWidth || el.scrollHeight > box.clientHeight) && size > min){
+      size -= 2;
+      el.style.fontSize = size + 'px';
+    }
+  }
+
+  function updatePreview(){
+    const cust = (customerName.value || '').trim() || 'CUSTOMER';
+    pvCustomer.textContent = cust;
+
+    const ord = (orderNumber.value || '').trim();
+    if(ord){
+      pvOrderLine.style.display = 'block';
+      pvOrder.textContent = ord;
+    }else{
+      pvOrderLine.style.display = 'none';
+      pvOrder.textContent = '';
+    }
+
+    const total = Math.max(1, parseInt(totalPallets.value || '1', 10));
+    const start = Math.max(1, parseInt(startPallet.value || '1', 10));
+    pvPalletText.textContent = `${start} of ${total}`;
+
+    pvShip.textContent = formatShipDate(shipDate.value);
+
+    autoFitPreviewName();
+  }
+
+  // === Printing ===
+  function openPrintWindow(){
+    const customer = (customerName.value || '').trim();
+    const order = (orderNumber.value || '').trim();
+    const total = Math.max(1, parseInt(totalPallets.value || '1', 10));
+    const start = Math.max(1, parseInt(startPallet.value || '1', 10));
+    const ship = shipDate.value || '';
+
+    if(!customer){
+      alert('Enter a Customer Name.');
+      customerName.focus();
+      return;
+    }
+
+    const params = new URLSearchParams();
+    params.set('customer', customer);
+    params.set('order', order);
+    params.set('total', String(total));
+    params.set('start', String(start));
+    params.set('ship', ship);
+
+    // IMPORTANT: must exist in repo root
+    const url = './print.html?' + params.toString();
+    window.open(url, '_blank', 'noopener,noreferrer');
+  }
+
+  function clearAll(){
+    presetSelect.value = '';
+    customerName.value = '';
+    orderNumber.value = '';
+    totalPallets.value = '1';
+    startPallet.value = '1';
+    setToday();
+    updatePreview();
+    customerName.focus();
+  }
+
+  function setToday(){
+    const t = new Date();
+    const yyyy = t.getFullYear();
+    const mm = String(t.getMonth()+1).padStart(2,'0');
+    const dd = String(t.getDate()).padStart(2,'0');
+    shipDate.value = `${yyyy}-${mm}-${dd}`;
+  }
+
+  // === Events ===
+  presetSelect.addEventListener('change', ()=>{
+    customerName.value = presetSelect.value || '';
+    updatePreview();
+  });
+
+  [customerName, orderNumber, totalPallets, startPallet, shipDate].forEach(el=>{
+    el.addEventListener('input', updatePreview);
+    el.addEventListener('change', updatePreview);
+  });
+
+  unlockBtn.addEventListener('click', unlockAdmin);
+  addPresetBtn.addEventListener('click', addPreset);
+  deletePresetBtn.addEventListener('click', deletePreset);
+  printBtn.addEventListener('click', ()=>{ updatePreview(); openPrintWindow(); });
+  clearBtn.addEventListener('click', clearAll);
+
+  window.addEventListener('DOMContentLoaded', async ()=>{
+    setToday();
+    await fetchPresetsFromApi();
+    updatePreview();
+  });
+</script>
 </body>
 </html>
