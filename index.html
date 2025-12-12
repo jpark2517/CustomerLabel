@@ -1,348 +1,225 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Label Control</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <style>
-    body { font-family: system-ui, -apple-system, Segoe UI, sans-serif; background:#0b1220; color:#e5e7eb; margin:0; padding:20px;}
-    .card { max-width:900px; margin:auto; background:#0f172a; border:1px solid rgba(148,163,184,.25); border-radius:14px; padding:16px; }
-    h1 { margin:0 0 12px; font-size:18px; }
-    label { font-size:12px; color:#9ca3af; text-transform:uppercase; letter-spacing:.06em; }
-    input, select { width:100%; padding:10px; margin-top:6px; margin-bottom:12px; border-radius:10px; border:1px solid rgba(148,163,184,.35); background:#020617; color:#e5e7eb; }
-    .row { display:flex; gap:12px; }
-    .row > div { flex:1; }
-    button { cursor:pointer; border:none; border-radius:999px; padding:10px 14px; font-weight:600; background:#2563eb; color:white; }
-    button.secondary { background:transparent; border:1px solid rgba(148,163,184,.45); color:#cbd5e1; }
-    button.danger { background:#dc2626; }
-    .buttons { display:flex; gap:10px; flex-wrap:wrap; }
-    .admin { margin-top:14px; padding:12px; border-radius:12px; border:1px dashed rgba(148,163,184,.35); background:rgba(2,6,23,.65); }
-    .hint { font-size:12px; color:#9ca3af; margin-top:-6px; margin-bottom:10px; display:block; }
-    .admin-controls { display:none; gap:10px; flex-direction:column; margin-top:10px; }
-    .admin-row { display:flex; gap:10px; align-items:flex-end; }
-  </style>
+<meta charset="UTF-8" />
+<title>Staged Order Label Printer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    background: #0b1220;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: #fff;
+  }
+
+  .app {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 24px;
+  }
+
+  .panel {
+    background: linear-gradient(180deg, #0f172a, #020617);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 20px 50px rgba(0,0,0,.6);
+  }
+
+  h1 {
+    margin: 0 0 20px;
+    font-size: 22px;
+  }
+
+  label {
+    display: block;
+    margin-top: 14px;
+    font-size: 12px;
+    opacity: .75;
+  }
+
+  input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #1e293b;
+    background: #020617;
+    color: #fff;
+    margin-top: 6px;
+    font-size: 15px;
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  button {
+    margin-top: 18px;
+    padding: 12px 18px;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    font-weight: 700;
+    background: #2563eb;
+    color: #fff;
+  }
+
+  /* ===== PREVIEW ===== */
+
+  .preview-wrapper {
+    margin-top: 28px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .label {
+    width: 600px;
+    height: 400px;
+    background: #fff;
+    color: #000;
+    border-radius: 14px;
+    padding: 24px 30px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    font-smooth: never;
+    -webkit-font-smoothing: none;
+  }
+
+  .label-header {
+    display: flex;
+    justify-content: flex-start;
+    font-weight: 900;
+    font-size: 16px;
+    letter-spacing: .06em;
+  }
+
+  .customer {
+    text-align: center;
+    font-size: 90px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+
+  .footer {
+    display: flex;
+    justify-content: space-between;
+    font-size: 18px;
+    font-weight: 900;
+  }
+
+  /* ===== PRINT ===== */
+
+  @media print {
+    @page {
+      size: 4in 6in;
+      margin: 0;
+    }
+
+    body {
+      background: #fff;
+      margin: 0;
+    }
+
+    .app,
+    .panel,
+    button,
+    h1,
+    label,
+    input {
+      display: none !important;
+    }
+
+    .preview-wrapper {
+      margin: 0;
+    }
+
+    .label {
+      width: 4in;
+      height: 6in;
+      border-radius: 0;
+      padding: 0.35in;
+      page-break-after: always;
+    }
+  }
+</style>
 </head>
+
 <body>
-  <div class="card">
+<div class="app">
+  <div class="panel">
     <h1>Label Control</h1>
 
-    <label>Customer preset</label>
-    <select id="presetSelect">
-      <option value="">— Select customer —</option>
-    </select>
-
-    <label>Customer name</label>
-    <input id="customerName" placeholder="Type customer name or pick preset" />
+    <label>CUSTOMER NAME</label>
+    <input id="customerInput" value="ACE NJ" />
 
     <div class="row">
       <div>
-        <label>Order # (optional)</label>
-        <input id="orderNumber" placeholder="SO-12345" />
+        <label>ORDER # (OPTIONAL)</label>
+        <input id="orderInput" value="SO-12345" />
       </div>
       <div>
-        <label>Total pallets (e.g. 12)</label>
-        <input id="palletTotal" inputmode="numeric" placeholder="12" />
+        <label>TOTAL PALLETS</label>
+        <input id="totalInput" type="number" value="12" />
       </div>
     </div>
 
     <div class="row">
       <div>
-        <label>Ship date</label>
-        <input id="shipDate" type="date" />
+        <label>SHIP DATE</label>
+        <input id="shipInput" type="date" value="2025-12-12" />
       </div>
       <div>
-        <label>Start pallet # (optional)</label>
-        <input id="startPallet" inputmode="numeric" placeholder="1" />
+        <label>START PALLET #</label>
+        <input id="startInput" type="number" value="1" />
       </div>
     </div>
 
-    <div class="buttons">
-      <button type="button" onclick="openPrinter()">Print Pallet Labels</button>
-      <button type="button" class="secondary" onclick="clearFields()">Clear</button>
-    </div>
-<hr style="border:0;border-top:1px solid rgba(148,163,184,.2);margin:16px 0">
+    <button onclick="printLabels()">Print Pallet Labels</button>
 
-<div id="previewWrap" style="display:flex;justify-content:center;">
-  <div style="width:600px;height:400px;background:#fff;border-radius:14px;box-shadow:0 14px 35px rgba(0,0,0,.35);padding:22px 28px;box-sizing:border-box;overflow:hidden;">
-    <div style="display:flex;justify-content:space-between;font-weight:900;font-size:14px;letter-spacing:.03em;text-transform:uppercase;">
-      <div>APOLLON WIRE &amp; CABLE</div>
-      <div></div>
-    </div>
+    <div class="preview-wrapper">
+      <div class="label">
+        <div class="label-header">APOLLON WIRE &amp; CABLE</div>
 
-    <div style="height:260px;display:flex;align-items:center;justify-content:center;text-align:center;">
-      <div id="previewCustomer" style="font-weight:900;line-height:1.05;">CUSTOMER NAME</div>
-    </div>
+        <div id="previewCustomer" class="customer">ACE NJ</div>
 
-    <div style="display:flex;justify-content:space-between;font-size:16px;font-weight:800;">
-      <div>
-        <div id="previewOrderLine" style="display:none;">ORDER: <span id="previewOrder"></span></div>
-        <div id="previewPalletLine">PALLET: <span id="previewPallet">1 of 1</span></div>
-      </div>
-      <div style="text-align:right">
-        SHIP: <span id="previewShip">—</span>
+        <div class="footer">
+          <div id="previewPallet">PALLET: 1 of 12</div>
+          <div id="previewShip">SHIP: 12/12/2025</div>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
-    <!-- ADMIN / PRESETS -->
-    <div class="admin">
-      <label>Admin (manage presets)</label>
-      <input id="adminPassword" type="password" placeholder="Enter password" />
-      <small class="hint">Hint: Hank Jung's 1st year working @ Apollon</small>
-
-      <div class="buttons">
-        <button type="button" class="secondary" onclick="unlockAdmin()">Unlock</button>
-      </div>
-
-      <div class="admin-controls" id="adminControls">
-        <div class="admin-row">
-          <div style="flex:1">
-            <label>Add preset</label>
-            <input id="newPresetName" placeholder="New customer name" />
-          </div>
-          <button type="button" onclick="addPreset()">Add</button>
-        </div>
-
-        <div class="admin-row">
-          <div style="flex:1">
-            <label>Delete preset</label>
-            <select id="deletePresetSelect"></select>
-          </div>
-          <button type="button" class="danger" onclick="deletePreset()">Delete</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
 <script>
-  // ✅ Your Apps Script URL
-  const API_URL = 'https://script.google.com/macros/s/AKfycbyr5srvdX4ZS90bze7PDXNm41sA7VNLcTiO8WBjkcVTdjTThL1bXx24-oAzJ3L0nGsE/exec';
+function printLabels() {
+  const name = customerInput.value.trim();
+  const order = orderInput.value.trim();
+  const total = parseInt(totalInput.value || 1);
+  const start = parseInt(startInput.value || 1);
+  const ship = shipInput.value;
 
-  // ✅ Your admin password
-  const ADMIN_PASSWORD = '2024';
-  let adminUnlocked = false;
+  const container = document.createElement("div");
 
-  const presetSelect = document.getElementById('presetSelect');
-  const deletePresetSelect = document.getElementById('deletePresetSelect');
-
-  const customerNameInput = document.getElementById('customerName');
-  const orderNumberInput = document.getElementById('orderNumber');
-  const palletTotalInput = document.getElementById('palletTotal');
-  const startPalletInput = document.getElementById('startPallet');
-  const shipDateInput = document.getElementById('shipDate');
-
-  const adminPasswordInput = document.getElementById('adminPassword');
-  const adminControls = document.getElementById('adminControls');
-  const newPresetNameInput = document.getElementById('newPresetName');
-
-  const defaultCustomerPresets = [
-    'City Electric Supply',
-    'Graybar',
-    'Home Depot',
-    'Lowe’s',
-    'Mr. Supply',
-    'Priority Wire & Cable',
-    'Turtle & Hughes'
-  ];
-
-  let customerPresets = [...defaultCustomerPresets];
-
-  presetSelect.addEventListener('change', () => {
-    customerNameInput.value = presetSelect.value || '';
-  });
-
-  function setTodayAsShipDate() {
-    const t = new Date();
-    const yyyy = t.getFullYear();
-    const mm = String(t.getMonth()+1).padStart(2,'0');
-    const dd = String(t.getDate()).padStart(2,'0');
-    shipDateInput.value = `${yyyy}-${mm}-${dd}`;
+  for (let i = 0; i < total; i++) {
+    const label = document.querySelector(".label").cloneNode(true);
+    label.querySelector("#previewCustomer").textContent = name;
+    label.querySelector("#previewPallet").textContent = `PALLET: ${start + i} of ${total}`;
+    label.querySelector("#previewShip").textContent = `SHIP: ${ship}`;
+    container.appendChild(label);
   }
 
-  function buildPresetControls() {
-    const sorted = [...customerPresets].sort((a,b)=>a.localeCompare(b, undefined, {sensitivity:'base'}));
-
-    presetSelect.innerHTML = '';
-    const ph = document.createElement('option');
-    ph.value = '';
-    ph.textContent = '— Select customer —';
-    presetSelect.appendChild(ph);
-
-    sorted.forEach(name => {
-      const o = document.createElement('option');
-      o.value = name;
-      o.textContent = name;
-      presetSelect.appendChild(o);
-    });
-
-    deletePresetSelect.innerHTML = '';
-    sorted.forEach(name => {
-      const o = document.createElement('option');
-      o.value = name;
-      o.textContent = name;
-      deletePresetSelect.appendChild(o);
-    });
-  }
-
-  async function fetchPresetsFromApi() {
-    try {
-      const res = await fetch(API_URL + '?action=list', { method:'GET' });
-      if (!res.ok) throw new Error('bad network');
-      const data = await res.json();
-      if (Array.isArray(data.customers) && data.customers.length) {
-        customerPresets = data.customers;
-      }
-    } catch (e) {
-      console.warn('Using fallback presets', e);
-    }
-    buildPresetControls();
-  }
-
-  function unlockAdmin() {
-    if (adminPasswordInput.value === ADMIN_PASSWORD) {
-      adminUnlocked = true;
-      adminControls.style.display = 'flex';
-    } else {
-      adminUnlocked = false;
-      adminControls.style.display = 'none';
-      alert('Incorrect password.');
-    }
-  }
-
-  async function addPreset() {
-    if (!adminUnlocked) return alert('Unlock admin first.');
-    const name = newPresetNameInput.value.trim();
-    if (!name) return;
-
-    const payload = { action:'add', name, adminKey: ADMIN_PASSWORD };
-
-    const res = await fetch(API_URL, {
-      method:'POST',
-      body: new URLSearchParams({ payload: JSON.stringify(payload) })
-    });
-
-    const text = await res.text();
-    let data;
-    try { data = JSON.parse(text); } catch { return alert('Bad response from API'); }
-    if (!data.ok) return alert(data.error || 'Failed to add');
-
-    newPresetNameInput.value = '';
-    await fetchPresetsFromApi();
-  }
-
-  async function deletePreset() {
-    if (!adminUnlocked) return alert('Unlock admin first.');
-    const name = deletePresetSelect.value;
-    if (!name) return;
-
-    const payload = { action:'delete', name, adminKey: ADMIN_PASSWORD };
-
-    const res = await fetch(API_URL, {
-      method:'POST',
-      body: new URLSearchParams({ payload: JSON.stringify(payload) })
-    });
-
-    const text = await res.text();
-    let data;
-    try { data = JSON.parse(text); } catch { return alert('Bad response from API'); }
-    if (!data.ok) return alert(data.error || 'Failed to delete');
-
-    await fetchPresetsFromApi();
-  }
-
-  function clearFields() {
-    customerNameInput.value = '';
-    orderNumberInput.value = '';
-    palletTotalInput.value = '';
-    startPalletInput.value = '';
-    setTodayAsShipDate();
-    customerNameInput.focus();
-  }
-
-  function openPrinter() {
-    const customer = customerNameInput.value.trim();
-    const order = orderNumberInput.value.trim();
-
-    let total = parseInt(palletTotalInput.value.trim(), 10);
-    if (!Number.isFinite(total) || total <= 0) total = 1;
-
-    let start = parseInt(startPalletInput.value.trim(), 10);
-    if (!Number.isFinite(start) || start <= 0) start = 1;
-
-    const ship = shipDateInput.value || '';
-
-    const params = new URLSearchParams({
-      customer,
-      order,
-      total: String(total),
-      start: String(start),
-      ship
-    });
-
-    window.open(`print.html?${params.toString()}`, '_blank', 'noopener');
-  }
-
-  window.addEventListener('DOMContentLoaded', () => {
-    setTodayAsShipDate();
-    fetchPresetsFromApi();
-    buildPresetControls();
-  });
-  // ---- Live Preview ----
-const previewCustomer = document.getElementById('previewCustomer');
-const previewOrderLine = document.getElementById('previewOrderLine');
-const previewOrder = document.getElementById('previewOrder');
-const previewPallet = document.getElementById('previewPallet');
-const previewShip = document.getElementById('previewShip');
-
-function formatShipDate2(iso) {
-  if (!iso) return '—';
-  const d = new Date(iso + 'T00:00');
-  const mm = String(d.getMonth()+1).padStart(2,'0');
-  const dd = String(d.getDate()).padStart(2,'0');
-  const yy = d.getFullYear();
-  return `${mm}/${dd}/${yy}`;
+  document.body.innerHTML = "";
+  document.body.appendChild(container);
+  window.print();
+  location.reload();
 }
-
-function autoFitPreview(el, max=92, min=18) {
-  const box = el.parentElement;
-  let size = max;
-  el.style.fontSize = size + 'px';
-  while ((el.scrollWidth > box.clientWidth || el.scrollHeight > box.clientHeight) && size > min) {
-    size -= 2;
-    el.style.fontSize = size + 'px';
-  }
-}
-
-function updatePreview() {
-  const customer = customerNameInput.value.trim() || 'CUSTOMER NAME';
-  previewCustomer.textContent = customer;
-  autoFitPreview(previewCustomer);
-
-  const order = orderNumberInput.value.trim();
-  if (order) {
-    previewOrderLine.style.display = 'block';
-    previewOrder.textContent = order;
-  } else {
-    previewOrderLine.style.display = 'none';
-    previewOrder.textContent = '';
-  }
-
-  let total = parseInt(palletTotalInput.value.trim(), 10);
-  if (!Number.isFinite(total) || total <= 0) total = 1;
-
-  let start = parseInt(startPalletInput.value.trim(), 10);
-  if (!Number.isFinite(start) || start <= 0) start = 1;
-
-  previewPallet.textContent = `${start} of ${total}`;
-  previewShip.textContent = formatShipDate2(shipDateInput.value);
-}
-
-[customerNameInput, orderNumberInput, palletTotalInput, startPalletInput, shipDateInput]
-  .forEach(el => el.addEventListener('input', updatePreview));
-
-presetSelect.addEventListener('change', updatePreview);
-window.addEventListener('DOMContentLoaded', updatePreview);
 </script>
 </body>
 </html>
