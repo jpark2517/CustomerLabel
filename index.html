@@ -1,225 +1,653 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<title>Staged Order Label Printer</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Staged Order Label Printer</title>
 
-<style>
-  body {
-    margin: 0;
-    padding: 0;
-    background: #0b1220;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    color: #fff;
-  }
-
-  .app {
-    max-width: 900px;
-    margin: 40px auto;
-    padding: 24px;
-  }
-
-  .panel {
-    background: linear-gradient(180deg, #0f172a, #020617);
-    border-radius: 16px;
-    padding: 24px;
-    box-shadow: 0 20px 50px rgba(0,0,0,.6);
-  }
-
-  h1 {
-    margin: 0 0 20px;
-    font-size: 22px;
-  }
-
-  label {
-    display: block;
-    margin-top: 14px;
-    font-size: 12px;
-    opacity: .75;
-  }
-
-  input {
-    width: 100%;
-    padding: 12px;
-    border-radius: 10px;
-    border: 1px solid #1e293b;
-    background: #020617;
-    color: #fff;
-    margin-top: 6px;
-    font-size: 15px;
-  }
-
-  .row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-  }
-
-  button {
-    margin-top: 18px;
-    padding: 12px 18px;
-    border-radius: 999px;
-    border: none;
-    cursor: pointer;
-    font-weight: 700;
-    background: #2563eb;
-    color: #fff;
-  }
-
-  /* ===== PREVIEW ===== */
-
-  .preview-wrapper {
-    margin-top: 28px;
-    display: flex;
-    justify-content: center;
-  }
-
-  .label {
-    width: 600px;
-    height: 400px;
-    background: #fff;
-    color: #000;
-    border-radius: 14px;
-    padding: 24px 30px;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    font-smooth: never;
-    -webkit-font-smoothing: none;
-  }
-
-  .label-header {
-    display: flex;
-    justify-content: flex-start;
-    font-weight: 900;
-    font-size: 16px;
-    letter-spacing: .06em;
-  }
-
-  .customer {
-    text-align: center;
-    font-size: 90px;
-    font-weight: 900;
-    line-height: 1;
-    letter-spacing: -0.02em;
-  }
-
-  .footer {
-    display: flex;
-    justify-content: space-between;
-    font-size: 18px;
-    font-weight: 900;
-  }
-
-  /* ===== PRINT ===== */
-
-  @media print {
-    @page {
-      size: 4in 6in;
-      margin: 0;
+  <style>
+    :root{
+      --bg:#0b1220;
+      --card:#0f172a;
+      --card2:#0b1020;
+      --stroke:rgba(148,163,184,.25);
+      --stroke2:rgba(148,163,184,.40);
+      --text:#e5e7eb;
+      --muted:#94a3b8;
+      --accent:#3b82f6;
+      --accent2:#1d4ed8;
+      --danger:#ef4444;
+      --danger2:#b91c1c;
     }
 
-    body {
-      background: #fff;
-      margin: 0;
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      background: radial-gradient(1200px 600px at 20% 0%, #111c36 0%, var(--bg) 60%, #05070f 100%);
+      padding:24px;
+      display:flex;
+      justify-content:center;
     }
 
-    .app,
-    .panel,
-    button,
-    h1,
-    label,
-    input {
-      display: none !important;
+    .app{
+      width:100%;
+      max-width: 880px;
     }
 
-    .preview-wrapper {
-      margin: 0;
+    .card{
+      background: radial-gradient(900px 600px at 20% 0%, rgba(59,130,246,.10), transparent 60%),
+                  linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      border:1px solid var(--stroke);
+      border-radius: 18px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.45);
+      padding:18px;
     }
 
-    .label {
-      width: 4in;
-      height: 6in;
-      border-radius: 0;
-      padding: 0.35in;
-      page-break-after: always;
+    .title{
+      font-size: 20px;
+      font-weight: 800;
+      margin:0 0 14px;
+      letter-spacing:.2px;
     }
-  }
-</style>
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:14px;
+    }
+
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+
+    label{
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--muted);
+    }
+
+    input, select{
+      width:100%;
+      min-width:0;
+      background: rgba(2,6,23,.75);
+      border:1px solid var(--stroke2);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 14px;
+      outline:none;
+    }
+
+    input:focus, select:focus{
+      border-color: rgba(59,130,246,.9);
+      box-shadow: 0 0 0 3px rgba(59,130,246,.18);
+    }
+
+    /* Two-column rows without overlap */
+    .row2{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+    }
+    @media (max-width: 720px){
+      .row2{ grid-template-columns: 1fr; }
+    }
+
+    .btnrow{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      margin-top:4px;
+    }
+
+    button{
+      border:none;
+      border-radius: 999px;
+      padding: 10px 16px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor:pointer;
+      color:white;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      box-shadow: 0 10px 25px rgba(37,99,235,.35);
+    }
+
+    button.secondary{
+      background: transparent;
+      border: 1px solid var(--stroke2);
+      box-shadow:none;
+      color: var(--text);
+      font-weight:700;
+    }
+
+    button.danger{
+      background: linear-gradient(135deg, var(--danger), var(--danger2));
+      box-shadow: 0 10px 25px rgba(239,68,68,.20);
+    }
+
+    .divider{
+      height:1px;
+      background: rgba(148,163,184,.20);
+      margin: 14px 0;
+    }
+
+    /* Preview label */
+    .preview-wrap{
+      display:flex;
+      justify-content:center;
+    }
+
+    .label{
+      width: 520px;
+      max-width: 100%;
+      height: 330px;
+      background:#fff;
+      color:#0b1020;
+      border-radius: 14px;
+      box-shadow: 0 18px 50px rgba(0,0,0,.35);
+      border:1px solid rgba(0,0,0,.08);
+      padding: 24px 28px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+    }
+
+    .label-top{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      font-size: 12px;              /* a bit bigger so it won’t “bleed” */
+      font-weight: 800;
+      letter-spacing: .10em;
+      color:#111827;
+      text-transform: uppercase;
+    }
+
+    /* Removed top-right "STAGED ORDER" per your request */
+    .label-top .right{ display:none; }
+
+    .label-center{
+      flex:1;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding: 8px 10px;
+    }
+
+    #previewCustomerName{
+      font-weight: 900;
+      line-height: 1.05;
+      letter-spacing: .02em;
+      word-break: break-word;
+      font-size: 78px; /* JS auto-resizes from this max */
+    }
+
+    .label-bottom{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-end;
+      gap:16px;
+      font-size: 16px;     /* bigger so it prints clean */
+      font-weight: 800;
+      color:#111827;
+      text-transform: uppercase;
+    }
+
+    .label-bottom .muted{
+      font-weight: 800;
+    }
+
+    .hide{ display:none !important; }
+
+    /* Admin panel */
+    .admin-panel{
+      border:1px dashed rgba(148,163,184,.35);
+      border-radius: 14px;
+      padding: 12px;
+      background: rgba(2,6,23,.35);
+    }
+    .admin-hint{
+      font-size: 12px;
+      color: var(--muted);
+      margin-top:6px;
+    }
+    .admin-controls{
+      display:none;
+      margin-top:12px;
+      gap:12px;
+    }
+    .admin-controls.show{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:12px;
+    }
+
+    /* PRINT */
+    @media print{
+      @page{
+        size: 4in 6in;   /* width x height */
+        margin: 0;
+      }
+      html, body{
+        width: 4in;
+        height: 6in;
+        margin:0;
+        padding:0;
+        background:#fff !important;
+        overflow:hidden;
+      }
+      .app, .card{
+        margin:0;
+        padding:0;
+        border:none;
+        box-shadow:none;
+        background:#fff !important;
+      }
+      /* Hide everything except the label */
+      .title, .grid, .divider, .admin-panel, .btnrow{
+        display:none !important;
+      }
+      .preview-wrap{
+        margin:0 !important;
+        padding:0 !important;
+      }
+      .label{
+        width: 4in !important;
+        height: 6in !important;
+        max-width:none !important;
+        border:none !important;
+        border-radius:0 !important;
+        box-shadow:none !important;
+        padding: 0.35in 0.35in !important; /* real-world margins */
+        page-break-after: avoid !important;
+        break-after: avoid !important;
+      }
+    }
+  </style>
 </head>
 
 <body>
-<div class="app">
-  <div class="panel">
-    <h1>Label Control</h1>
+  <div class="app">
+    <div class="card">
+      <div class="title">Label Control</div>
 
-    <label>CUSTOMER NAME</label>
-    <input id="customerInput" value="ACE NJ" />
-
-    <div class="row">
-      <div>
-        <label>ORDER # (OPTIONAL)</label>
-        <input id="orderInput" value="SO-12345" />
-      </div>
-      <div>
-        <label>TOTAL PALLETS</label>
-        <input id="totalInput" type="number" value="12" />
-      </div>
-    </div>
-
-    <div class="row">
-      <div>
-        <label>SHIP DATE</label>
-        <input id="shipInput" type="date" value="2025-12-12" />
-      </div>
-      <div>
-        <label>START PALLET #</label>
-        <input id="startInput" type="number" value="1" />
-      </div>
-    </div>
-
-    <button onclick="printLabels()">Print Pallet Labels</button>
-
-    <div class="preview-wrapper">
-      <div class="label">
-        <div class="label-header">APOLLON WIRE &amp; CABLE</div>
-
-        <div id="previewCustomer" class="customer">ACE NJ</div>
-
-        <div class="footer">
-          <div id="previewPallet">PALLET: 1 of 12</div>
-          <div id="previewShip">SHIP: 12/12/2025</div>
+      <div class="grid">
+        <div class="field">
+          <label for="presetSelect">Customer Preset</label>
+          <select id="presetSelect">
+            <option value="">— Select customer —</option>
+          </select>
         </div>
-      </div>
-    </div>
-  </div>
-</div>
 
-<script>
-function printLabels() {
-  const name = customerInput.value.trim();
-  const order = orderInput.value.trim();
-  const total = parseInt(totalInput.value || 1);
-  const start = parseInt(startInput.value || 1);
-  const ship = shipInput.value;
+        <div class="field">
+          <label for="customerName">Customer Name</label>
+          <input id="customerName" placeholder="ACE NJ" />
+        </div>
 
-  const container = document.createElement("div");
+        <div class="row2">
+          <div class="field">
+            <label for="orderNumber">Order # (optional)</label>
+            <input id="orderNumber" placeholder="SO-12345" />
+          </div>
+          <div class="field">
+            <label for="totalPallets">Total Pallets</label>
+            <input id="totalPallets" type="number" min="1" placeholder="12" />
+          </div>
+        </div>
 
-  for (let i = 0; i < total; i++) {
-    const label = document.querySelector(".label").cloneNode(true);
-    label.querySelector("#previewCustomer").textContent = name;
-    label.querySelector("#previewPallet").textContent = `PALLET: ${start + i} of ${total}`;
-    label.querySelector("#previewShip").textContent = `SHIP: ${ship}`;
-    container.appendChild(label);
-  }
+        <div class="row2">
+          <div class="field">
+            <label for="shipDate">Ship Date</label>
+            <input id="shipDate" type="date" />
+          </div>
+          <div class="field">
+            <label for="startPallet">Start Pallet #</label>
+            <input id="startPallet" type="number" min="1" placeholder="1" />
+          </div>
+        </div>
 
-  document.body.innerHTML = "";
-  document.body.appendChild(container);
-  window.print();
-  location.reload();
-}
-</script>
+        <div class="btnrow">
+          <button type="button" id="printBtn">Print Pallet Label</button>
+          <button type="button" class="secondary" id="clearBtn">Clear</button>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="preview-wrap">
+          <div class="label" id="labelPreview">
+            <div class="label-top">
+              <div class="left">APOLLON WIRE &amp; CABLE</div>
+              <div class="right">STAGED ORDER</div>
+            </div>
+
+            <div class="label-center">
+              <div id="previewCustomerName">CUSTOMER NAME</div>
+            </div>
+
+            <div class="label-bottom">
+              <div>
+                <span id="orderLine" class="hide">ORDER: <span id="previewOrderNumber"></span></span><br/>
+                <span>PALLET: <span id="previewPalletText">1 of 1</span></span>
+              </div>
+              <div>
+                SHIP: <span id="previewShipDate">—</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ADMIN PANEL (BACK) -->
+        <div class="admin-panel">
+          <div class="field">
+            <label for="adminPassword">Admin (manage presets)</label>
+            <input id="adminPassword" type="password" placeholder="Enter password" />
+            <div class="admin-hint">Hint: Hank Jung's 1st year working @ Apollon</div>
+          </div>
+
+          <div class="btnrow">
+            <button type="button" class="secondary" id="unlockBtn">Unlock</button>
+          </div>
+
+          <div class="admin-controls" id="adminControls">
+            <div class="row2">
+              <div class="field">
+                <label for="newPresetName">Add preset</label>
+                <input id="newPresetName" placeholder="New customer name" />
+              </div>
+              <div class="btnrow" style="align-self:end;">
+                <button type="button" id="addPresetBtn">Add</button>
+              </div>
+            </div>
+
+            <div class="row2">
+              <div class="field">
+                <label for="deletePresetSelect">Delete preset</label>
+                <select id="deletePresetSelect"></select>
+              </div>
+              <div class="btnrow" style="align-self:end;">
+                <button type="button" class="danger" id="deletePresetBtn">Delete</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- grid -->
+    </div><!-- card -->
+  </div><!-- app -->
+
+  <script>
+    // 🔗 Your Apps Script Web App URL
+    const API_URL = 'https://script.google.com/macros/s/AKfycbyr5srvdX4ZS90bze7PDXNm41sA7VNLcTiO8WBjkcVTdjTThL1bXx24-oAzJ3L0nGsE/exec';
+
+    // Admin password
+    const ADMIN_PASSWORD = '2024';
+
+    // Elements
+    const presetSelect = document.getElementById('presetSelect');
+    const customerNameInput = document.getElementById('customerName');
+    const orderNumberInput  = document.getElementById('orderNumber');
+    const totalPalletsInput = document.getElementById('totalPallets');
+    const shipDateInput     = document.getElementById('shipDate');
+    const startPalletInput  = document.getElementById('startPallet');
+
+    const previewCustomerName = document.getElementById('previewCustomerName');
+    const previewOrderNumber  = document.getElementById('previewOrderNumber');
+    const previewPalletText   = document.getElementById('previewPalletText');
+    const previewShipDate     = document.getElementById('previewShipDate');
+    const orderLine           = document.getElementById('orderLine');
+
+    const printBtn = document.getElementById('printBtn');
+    const clearBtn = document.getElementById('clearBtn');
+
+    // Admin
+    const adminPasswordInput = document.getElementById('adminPassword');
+    const unlockBtn          = document.getElementById('unlockBtn');
+    const adminControls      = document.getElementById('adminControls');
+    const newPresetNameInput = document.getElementById('newPresetName');
+    const addPresetBtn       = document.getElementById('addPresetBtn');
+    const deletePresetSelect = document.getElementById('deletePresetSelect');
+    const deletePresetBtn    = document.getElementById('deletePresetBtn');
+
+    let adminUnlocked = false;
+
+    // Presets fallback
+    const defaultCustomerPresets = [
+      'ACE NJ',
+      'City Electric Supply',
+      'Graybar',
+      'Home Depot',
+      'Lowe’s',
+      'Mr. Supply',
+      'Priority Wire & Cable',
+      'Turtle & Hughes'
+    ];
+
+    let customerPresets = [...defaultCustomerPresets];
+
+    // --- Helpers ---
+    function setToday() {
+      const d = new Date();
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2,'0');
+      const dd = String(d.getDate()).padStart(2,'0');
+      shipDateInput.value = `${yyyy}-${mm}-${dd}`;
+    }
+
+    function formatShipDate(iso){
+      if(!iso) return '—';
+      const d = new Date(iso + 'T00:00');
+      const mm = String(d.getMonth()+1).padStart(2,'0');
+      const dd = String(d.getDate()).padStart(2,'0');
+      const yyyy = d.getFullYear();
+      return `${mm}/${dd}/${yyyy}`;
+    }
+
+    // Auto-resize big customer name to fit the label center
+    function autoResizeCustomerName(){
+      const el = previewCustomerName;
+      const parent = el.parentElement;
+
+      let size = 120;       // max
+      const minSize = 28;   // min
+      el.style.fontSize = size + 'px';
+
+      while(
+        (el.scrollWidth > parent.clientWidth || el.scrollHeight > parent.clientHeight) &&
+        size > minSize
+      ){
+        size -= 2;
+        el.style.fontSize = size + 'px';
+      }
+    }
+
+    // --- Build preset dropdowns ---
+    function buildPresetControls(){
+      const sorted = [...new Set(customerPresets)]
+        .map(s => s.trim())
+        .filter(Boolean)
+        .sort((a,b) => a.localeCompare(b, undefined, {sensitivity:'base'}));
+
+      // main presets
+      presetSelect.innerHTML = '';
+      const ph = document.createElement('option');
+      ph.value = '';
+      ph.textContent = '— Select customer —';
+      presetSelect.appendChild(ph);
+
+      sorted.forEach(name => {
+        const o = document.createElement('option');
+        o.value = name;
+        o.textContent = name;
+        presetSelect.appendChild(o);
+      });
+
+      // delete presets
+      deletePresetSelect.innerHTML = '';
+      sorted.forEach(name => {
+        const o = document.createElement('option');
+        o.value = name;
+        o.textContent = name;
+        deletePresetSelect.appendChild(o);
+      });
+    }
+
+    async function fetchPresets(){
+      try{
+        const res = await fetch(API_URL + '?action=list', { method:'GET' });
+        if(!res.ok) throw new Error('bad_network');
+        const data = await res.json();
+        if(Array.isArray(data.customers) && data.customers.length){
+          customerPresets = data.customers;
+        }
+      }catch(e){
+        // fallback is fine
+      }
+      buildPresetControls();
+    }
+
+    // --- Admin actions ---
+    function unlockAdmin(){
+      if(adminPasswordInput.value === ADMIN_PASSWORD){
+        adminUnlocked = true;
+        adminControls.classList.add('show');
+      }else{
+        adminUnlocked = false;
+        adminControls.classList.remove('show');
+        alert('Incorrect password.');
+      }
+    }
+
+    async function addPreset(){
+      if(!adminUnlocked) return alert('Unlock admin first.');
+      const name = newPresetNameInput.value.trim();
+      if(!name) return;
+
+      try{
+        const payload = { action:'add', name, adminKey: ADMIN_PASSWORD };
+        const res = await fetch(API_URL, {
+          method:'POST',
+          body: new URLSearchParams({ payload: JSON.stringify(payload) })
+        });
+        const text = await res.text();
+        const data = JSON.parse(text);
+        if(!data.ok) throw new Error(data.error || 'add_failed');
+        newPresetNameInput.value = '';
+        await fetchPresets();
+      }catch(e){
+        alert('Error adding preset.');
+      }
+    }
+
+    async function deletePreset(){
+      if(!adminUnlocked) return alert('Unlock admin first.');
+      const name = deletePresetSelect.value;
+      if(!name) return;
+
+      try{
+        const payload = { action:'delete', name, adminKey: ADMIN_PASSWORD };
+        const res = await fetch(API_URL, {
+          method:'POST',
+          body: new URLSearchParams({ payload: JSON.stringify(payload) })
+        });
+        const text = await res.text();
+        const data = JSON.parse(text);
+        if(!data.ok) throw new Error(data.error || 'delete_failed');
+        await fetchPresets();
+      }catch(e){
+        alert('Error deleting preset.');
+      }
+    }
+
+    // --- Preview update ---
+    function updatePreview(){
+      const cust = customerNameInput.value.trim() || 'CUSTOMER NAME';
+      previewCustomerName.textContent = cust;
+      autoResizeCustomerName();
+
+      const order = orderNumberInput.value.trim();
+      if(order){
+        previewOrderNumber.textContent = order;
+        orderLine.classList.remove('hide');
+      }else{
+        orderLine.classList.add('hide');
+      }
+
+      const total = parseInt(totalPalletsInput.value, 10);
+      const start = parseInt(startPalletInput.value, 10) || 1;
+      const cur = start;
+
+      const totalSafe = (Number.isFinite(total) && total > 0) ? total : 1;
+      previewPalletText.textContent = `${cur} of ${totalSafe}`;
+
+      previewShipDate.textContent = formatShipDate(shipDateInput.value);
+    }
+
+    // --- Printing (one label per click) ---
+    // This avoids Chrome trying to “auto print” multiple pages.
+    function printOne(){
+      updatePreview();
+      window.print();
+
+      // After printing, auto-advance pallet number for next click
+      const total = parseInt(totalPalletsInput.value, 10);
+      const totalSafe = (Number.isFinite(total) && total > 0) ? total : 1;
+
+      const start = parseInt(startPalletInput.value, 10) || 1;
+      let next = start + 1;
+
+      if(next <= totalSafe){
+        startPalletInput.value = String(next);
+        updatePreview();
+      }
+    }
+
+    function clearAll(){
+      presetSelect.value = '';
+      customerNameInput.value = '';
+      orderNumberInput.value = '';
+      totalPalletsInput.value = '';
+      startPalletInput.value = '1';
+      setToday();
+      updatePreview();
+      customerNameInput.focus();
+    }
+
+    // Events
+    presetSelect.addEventListener('change', () => {
+      const name = presetSelect.value;
+      customerNameInput.value = name || '';
+      updatePreview();
+    });
+
+    [
+      customerNameInput,
+      orderNumberInput,
+      totalPalletsInput,
+      shipDateInput,
+      startPalletInput
+    ].forEach(el => el.addEventListener('input', updatePreview));
+
+    unlockBtn.addEventListener('click', unlockAdmin);
+    addPresetBtn.addEventListener('click', addPreset);
+    deletePresetBtn.addEventListener('click', deletePreset);
+
+    printBtn.addEventListener('click', printOne);
+    clearBtn.addEventListener('click', clearAll);
+
+    // Init
+    window.addEventListener('DOMContentLoaded', async () => {
+      setToday();
+      if(!startPalletInput.value) startPalletInput.value = '1';
+      await fetchPresets();
+      updatePreview();
+    });
+  </script>
 </body>
 </html>
