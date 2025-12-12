@@ -1,230 +1,269 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<title>Customer Label</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-<style>
-/* =========================
-   SCREEN STYLES (UNCHANGED UI)
-========================= */
-body {
-  margin: 0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  background: #020617;
-  color: #f9fafb;
-}
-
-.app {
-  max-width: 1100px;
-  margin: auto;
-  padding: 20px;
-}
-
-.card {
-  background: #020617;
-  border-radius: 18px;
-  padding: 20px;
-}
-
-/* =========================
-   LABEL (SCREEN PREVIEW)
-========================= */
-.label-wrapper {
-  display: flex;
-  justify-content: center;
-  margin-top: 20px;
-}
-
-.label {
-  width: 600px;
-  height: 400px;
-  background: #ffffff;
-  color: #111827;
-  border-radius: 14px;
-  padding: 28px 36px;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.label-header {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.85rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: #111827;
-}
-
-.label-main {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-}
-
-.customer-name {
-  font-weight: 900;
-  font-size: 4rem;
-  line-height: 1.1;
-}
-
-.label-footer {
-  display: flex;
-  justify-content: space-between;
-  font-size: 1rem;
-}
-
-#orderLine,
-#palletLine {
-  font-size: 1rem;
-}
-
-#previewOrderNumber,
-#previewPalletQty {
-  font-weight: 800;
-}
-
-/* =========================
-   PRINT — ZEBRA GX420
-========================= */
-@media print {
-
-  /* EXACT LABEL SIZE */
-  @page {
-    size: 4in 6in;
-    margin: 0;
-  }
-
-  body {
-    margin: 0;
-    padding: 0;
-    background: #fff;
-  }
-
-  /* Hide ALL UI */
-  .app,
-  .card {
-    display: none !important;
-  }
-
-  /* Print-only label */
-  .print-root {
-    position: absolute;
-    top: 6in;
-    left: 0;
-    width: 6in;
-    height: 4in;
-    transform: rotate(-90deg);
-    transform-origin: top left;
-  }
-
-  .label {
-    width: 100%;
-    height: 100%;
-    padding: 22px 28px;
-    border-radius: 0;
-    box-shadow: none;
-    overflow: hidden;
-  }
-
-  /* REMOVE STAGED ORDER TEXT */
-  .staged-order {
-    display: none !important;
-  }
-
-  /* THERMAL OPTIMIZATION */
-  .label-header {
-    font-size: 0.9rem;
-    font-weight: 900;
-    color: #000;
-  }
-
-  .customer-name {
-    font-size: 4.2rem;
-    font-weight: 900;
-    color: #000;
-  }
-
-  .label-footer {
-    font-size: 1.05rem;
-    font-weight: 700;
-    color: #000;
-  }
-}
-</style>
+  <meta charset="UTF-8" />
+  <title>Label Control</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, sans-serif; background:#0b1220; color:#e5e7eb; margin:0; padding:20px;}
+    .card { max-width:900px; margin:auto; background:#0f172a; border:1px solid rgba(148,163,184,.25); border-radius:14px; padding:16px; }
+    h1 { margin:0 0 12px; font-size:18px; }
+    label { font-size:12px; color:#9ca3af; text-transform:uppercase; letter-spacing:.06em; }
+    input, select { width:100%; padding:10px; margin-top:6px; margin-bottom:12px; border-radius:10px; border:1px solid rgba(148,163,184,.35); background:#020617; color:#e5e7eb; }
+    .row { display:flex; gap:12px; }
+    .row > div { flex:1; }
+    button { cursor:pointer; border:none; border-radius:999px; padding:10px 14px; font-weight:600; background:#2563eb; color:white; }
+    button.secondary { background:transparent; border:1px solid rgba(148,163,184,.45); color:#cbd5e1; }
+    button.danger { background:#dc2626; }
+    .buttons { display:flex; gap:10px; flex-wrap:wrap; }
+    .admin { margin-top:14px; padding:12px; border-radius:12px; border:1px dashed rgba(148,163,184,.35); background:rgba(2,6,23,.65); }
+    .hint { font-size:12px; color:#9ca3af; margin-top:-6px; margin-bottom:10px; display:block; }
+    .admin-controls { display:none; gap:10px; flex-direction:column; margin-top:10px; }
+    .admin-row { display:flex; gap:10px; align-items:flex-end; }
+  </style>
 </head>
-
 <body>
+  <div class="card">
+    <h1>Label Control</h1>
 
-<div class="app">
-  <!-- YOUR EXISTING FORM / ADMIN UI STAYS HERE -->
-  <!-- (No changes required) -->
-</div>
+    <label>Customer preset</label>
+    <select id="presetSelect">
+      <option value="">— Select customer —</option>
+    </select>
 
-<!-- =========================
-     PRINT-ONLY LABEL
-========================= -->
-<div class="print-root">
-  <div class="label">
+    <label>Customer name</label>
+    <input id="customerName" placeholder="Type customer name or pick preset" />
 
-    <div class="label-header">
-      <div>APOLLON WIRE &amp; CABLE</div>
-      <div class="staged-order"></div>
-    </div>
-
-    <div class="label-main">
-      <div class="customer-name" id="previewCustomerName">
-        CUSTOMER NAME
-      </div>
-    </div>
-
-    <div class="label-footer">
+    <div class="row">
       <div>
-        <div id="orderLine" style="display:none;">
-          ORDER: <span id="previewOrderNumber"></span>
-        </div>
-        <div id="palletLine" style="display:none;">
-          PALLET: <span id="previewPalletQty"></span>
-        </div>
+        <label>Order # (optional)</label>
+        <input id="orderNumber" placeholder="SO-12345" />
       </div>
       <div>
-        SHIP: <span id="previewShipDate"></span>
+        <label>Total pallets (e.g. 12)</label>
+        <input id="palletTotal" inputmode="numeric" placeholder="12" />
       </div>
     </div>
 
+    <div class="row">
+      <div>
+        <label>Ship date</label>
+        <input id="shipDate" type="date" />
+      </div>
+      <div>
+        <label>Start pallet # (optional)</label>
+        <input id="startPallet" inputmode="numeric" placeholder="1" />
+      </div>
+    </div>
+
+    <div class="buttons">
+      <button type="button" onclick="openPrinter()">Print Pallet Labels</button>
+      <button type="button" class="secondary" onclick="clearFields()">Clear</button>
+    </div>
+
+    <!-- ADMIN / PRESETS -->
+    <div class="admin">
+      <label>Admin (manage presets)</label>
+      <input id="adminPassword" type="password" placeholder="Enter password" />
+      <small class="hint">Hint: Hank Jung's 1st year working @ Apollon</small>
+
+      <div class="buttons">
+        <button type="button" class="secondary" onclick="unlockAdmin()">Unlock</button>
+      </div>
+
+      <div class="admin-controls" id="adminControls">
+        <div class="admin-row">
+          <div style="flex:1">
+            <label>Add preset</label>
+            <input id="newPresetName" placeholder="New customer name" />
+          </div>
+          <button type="button" onclick="addPreset()">Add</button>
+        </div>
+
+        <div class="admin-row">
+          <div style="flex:1">
+            <label>Delete preset</label>
+            <select id="deletePresetSelect"></select>
+          </div>
+          <button type="button" class="danger" onclick="deletePreset()">Delete</button>
+        </div>
+      </div>
+    </div>
   </div>
-</div>
 
 <script>
-/* ===== PREVIEW BINDINGS ===== */
-function updatePreview() {
-  const name = document.getElementById('customerName')?.value || 'CUSTOMER NAME';
-  document.getElementById('previewCustomerName').textContent = name;
+  // ✅ Your Apps Script URL
+  const API_URL = 'https://script.google.com/macros/s/AKfycbyr5srvdX4ZS90bze7PDXNm41sA7VNLcTiO8WBjkcVTdjTThL1bXx24-oAzJ3L0nGsE/exec';
 
-  const order = document.getElementById('orderNumber')?.value || '';
-  const pallet = document.getElementById('palletQty')?.value || '';
-  const ship = document.getElementById('shipDate')?.value || '';
+  // ✅ Your admin password
+  const ADMIN_PASSWORD = '2024';
+  let adminUnlocked = false;
 
-  document.getElementById('orderLine').style.display = order ? 'block' : 'none';
-  document.getElementById('previewOrderNumber').textContent = order;
+  const presetSelect = document.getElementById('presetSelect');
+  const deletePresetSelect = document.getElementById('deletePresetSelect');
 
-  document.getElementById('palletLine').style.display = pallet ? 'block' : 'none';
-  document.getElementById('previewPalletQty').textContent = pallet;
+  const customerNameInput = document.getElementById('customerName');
+  const orderNumberInput = document.getElementById('orderNumber');
+  const palletTotalInput = document.getElementById('palletTotal');
+  const startPalletInput = document.getElementById('startPallet');
+  const shipDateInput = document.getElementById('shipDate');
 
-  if (ship) {
-    const d = new Date(ship + 'T00:00');
-    document.getElementById('previewShipDate').textContent =
-      `${d.getMonth()+1}/${d.getDate()}/${d.getFullYear()}`;
+  const adminPasswordInput = document.getElementById('adminPassword');
+  const adminControls = document.getElementById('adminControls');
+  const newPresetNameInput = document.getElementById('newPresetName');
+
+  const defaultCustomerPresets = [
+    'City Electric Supply',
+    'Graybar',
+    'Home Depot',
+    'Lowe’s',
+    'Mr. Supply',
+    'Priority Wire & Cable',
+    'Turtle & Hughes'
+  ];
+
+  let customerPresets = [...defaultCustomerPresets];
+
+  presetSelect.addEventListener('change', () => {
+    customerNameInput.value = presetSelect.value || '';
+  });
+
+  function setTodayAsShipDate() {
+    const t = new Date();
+    const yyyy = t.getFullYear();
+    const mm = String(t.getMonth()+1).padStart(2,'0');
+    const dd = String(t.getDate()).padStart(2,'0');
+    shipDateInput.value = `${yyyy}-${mm}-${dd}`;
   }
-}
 
-document.addEventListener('input', updatePreview);
+  function buildPresetControls() {
+    const sorted = [...customerPresets].sort((a,b)=>a.localeCompare(b, undefined, {sensitivity:'base'}));
+
+    presetSelect.innerHTML = '';
+    const ph = document.createElement('option');
+    ph.value = '';
+    ph.textContent = '— Select customer —';
+    presetSelect.appendChild(ph);
+
+    sorted.forEach(name => {
+      const o = document.createElement('option');
+      o.value = name;
+      o.textContent = name;
+      presetSelect.appendChild(o);
+    });
+
+    deletePresetSelect.innerHTML = '';
+    sorted.forEach(name => {
+      const o = document.createElement('option');
+      o.value = name;
+      o.textContent = name;
+      deletePresetSelect.appendChild(o);
+    });
+  }
+
+  async function fetchPresetsFromApi() {
+    try {
+      const res = await fetch(API_URL + '?action=list', { method:'GET' });
+      if (!res.ok) throw new Error('bad network');
+      const data = await res.json();
+      if (Array.isArray(data.customers) && data.customers.length) {
+        customerPresets = data.customers;
+      }
+    } catch (e) {
+      console.warn('Using fallback presets', e);
+    }
+    buildPresetControls();
+  }
+
+  function unlockAdmin() {
+    if (adminPasswordInput.value === ADMIN_PASSWORD) {
+      adminUnlocked = true;
+      adminControls.style.display = 'flex';
+    } else {
+      adminUnlocked = false;
+      adminControls.style.display = 'none';
+      alert('Incorrect password.');
+    }
+  }
+
+  async function addPreset() {
+    if (!adminUnlocked) return alert('Unlock admin first.');
+    const name = newPresetNameInput.value.trim();
+    if (!name) return;
+
+    const payload = { action:'add', name, adminKey: ADMIN_PASSWORD };
+
+    const res = await fetch(API_URL, {
+      method:'POST',
+      body: new URLSearchParams({ payload: JSON.stringify(payload) })
+    });
+
+    const text = await res.text();
+    let data;
+    try { data = JSON.parse(text); } catch { return alert('Bad response from API'); }
+    if (!data.ok) return alert(data.error || 'Failed to add');
+
+    newPresetNameInput.value = '';
+    await fetchPresetsFromApi();
+  }
+
+  async function deletePreset() {
+    if (!adminUnlocked) return alert('Unlock admin first.');
+    const name = deletePresetSelect.value;
+    if (!name) return;
+
+    const payload = { action:'delete', name, adminKey: ADMIN_PASSWORD };
+
+    const res = await fetch(API_URL, {
+      method:'POST',
+      body: new URLSearchParams({ payload: JSON.stringify(payload) })
+    });
+
+    const text = await res.text();
+    let data;
+    try { data = JSON.parse(text); } catch { return alert('Bad response from API'); }
+    if (!data.ok) return alert(data.error || 'Failed to delete');
+
+    await fetchPresetsFromApi();
+  }
+
+  function clearFields() {
+    customerNameInput.value = '';
+    orderNumberInput.value = '';
+    palletTotalInput.value = '';
+    startPalletInput.value = '';
+    setTodayAsShipDate();
+    customerNameInput.focus();
+  }
+
+  function openPrinter() {
+    const customer = customerNameInput.value.trim();
+    const order = orderNumberInput.value.trim();
+
+    let total = parseInt(palletTotalInput.value.trim(), 10);
+    if (!Number.isFinite(total) || total <= 0) total = 1;
+
+    let start = parseInt(startPalletInput.value.trim(), 10);
+    if (!Number.isFinite(start) || start <= 0) start = 1;
+
+    const ship = shipDateInput.value || '';
+
+    const params = new URLSearchParams({
+      customer,
+      order,
+      total: String(total),
+      start: String(start),
+      ship
+    });
+
+    window.open(`print.html?${params.toString()}`, '_blank', 'noopener');
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    setTodayAsShipDate();
+    fetchPresetsFromApi();
+    buildPresetControls();
+  });
 </script>
-
 </body>
 </html>
